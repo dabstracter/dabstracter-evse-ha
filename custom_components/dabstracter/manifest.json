@@ -1,16 +1,16 @@
 {
   "domain": "dabstracter",
   "name": "DABSTRACTER EVSE",
-  "codeowners": [
-    "@dabstracter"
-  ],
-  "config_flow": true,
-  "dependencies": [],
   "after_dependencies": [
     "http",
     "frontend",
     "websocket_api"
   ],
+  "codeowners": [
+    "@dabstracter"
+  ],
+  "config_flow": true,
+  "dependencies": [],
   "documentation": "https://github.com/dabstracter/dabstracter-hacs",
   "integration_type": "device",
   "iot_class": "local_polling",
