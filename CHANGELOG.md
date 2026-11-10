@@ -1,5 +1,11 @@
 # Változásnapló
 
+## 0.2.1 – HACS-közzététel előkészítése (2026-11-10)
+
+- Public HACS-repó: [`dabstracter-hacs`](https://github.com/dabstracter/dabstracter-hacs) (angol README + magyar `README.hu.md`).
+- `manifest.json`: `codeowners`, documentation / issue_tracker a public repóra mutat.
+- GitHub Actions: HACS validation + hassfest a public csomagon.
+
 ## 0.2.0 – Kártya: limit, célidő, diagram, statisztika (2026-11-09)
 
 - Energiafolyam: keskeny szeletnél nincs többé üres keret; közepes szeletnél az érték a sávban látszik;
