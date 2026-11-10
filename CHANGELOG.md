@@ -1,15 +1,19 @@
 # Változásnapló
 
+## 0.2.3 – Repository renamed to dabstracter-evse-ha (2026-11-10)
+
+- Repository renamed to dabstracter-evse-ha ([`dabstracter/dabstracter-evse-ha`](https://github.com/dabstracter/dabstracter-evse-ha)). Documentation, issue tracker, README, and the charger card documentation URL follow the new name.
+
 ## 0.2.2 – Hassfest, kategória, repó (2026-11-10)
 
 - `manifest.json` kulcsok sorrendje a hassfest szabály szerint: `domain`, `name`, majd ábécérend.
 - HACS kategória: `energy.ev_charging`.
 - GitHub Actions: `actions/checkout@v7`.
-- A repó új neve [`dabstracter/dabstracter`](https://github.com/dabstracter/dabstracter); a documentation és az issue tracker URL-ek erre mutatnak.
+- A repó új neve [`dabstracter/dabstracter-evse-ha`](https://github.com/dabstracter/dabstracter-evse-ha); a documentation és az issue tracker URL-ek erre mutatnak.
 
 ## 0.2.1 – HACS-közzététel előkészítése (2026-11-10)
 
-- Public HACS-repó: [`dabstracter`](https://github.com/dabstracter/dabstracter) (angol README + magyar `README.hu.md`).
+- Public HACS-repó: [`dabstracter-evse-ha`](https://github.com/dabstracter/dabstracter-evse-ha) (angol README + magyar `README.hu.md`).
 - `manifest.json`: `codeowners`, documentation / issue_tracker a public repóra mutat.
 - GitHub Actions: HACS validation + hassfest a public csomagon.
 
