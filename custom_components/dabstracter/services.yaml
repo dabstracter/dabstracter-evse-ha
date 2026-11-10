@@ -1,0 +1,74 @@
+set_limit:
+  fields:
+    device_id:
+      selector:
+        device:
+          integration: dabstracter
+    clear:
+      default: false
+      selector:
+        boolean:
+    type:
+      default: soc
+      selector:
+        select:
+          translation_key: limit_type
+          options:
+            - soc
+            - kwh
+    value:
+      example: 80
+      selector:
+        number:
+          min: 0.1
+          max: 200
+          step: 0.1
+          mode: box
+    start_soc:
+      selector:
+        number:
+          min: 0
+          max: 100
+          step: 1
+          unit_of_measurement: "%"
+          mode: box
+
+set_plan:
+  fields:
+    device_id:
+      selector:
+        device:
+          integration: dabstracter
+    cancel:
+      default: false
+      selector:
+        boolean:
+    type:
+      default: kwh
+      selector:
+        select:
+          translation_key: plan_type
+          options:
+            - kwh
+            - km
+            - soc
+    value:
+      example: 20
+      selector:
+        number:
+          min: 0.1
+          max: 2000
+          step: 0.1
+          mode: box
+    time:
+      example: "07:00"
+      selector:
+        time:
+    start_soc:
+      selector:
+        number:
+          min: 0
+          max: 100
+          step: 1
+          unit_of_measurement: "%"
+          mode: box

@@ -1,0 +1,172 @@
+{
+  "config": {
+    "flow_title": "{name}",
+    "step": {
+      "user": {
+        "title": "DABSTRACTER EVSE",
+        "description": "Csatlakozás a töltőhöz a helyi hálózaton. Add meg a kijelző-tokent (Config → Kijelző), egy user/admin jelszót, vagy mindkettőt. A töltési limithez és a célidős töltéshez jelszó kell.",
+        "data": {
+          "host": "Gépnév vagy IP-cím",
+          "token": "Kijelző-token",
+          "username": "Felhasználó",
+          "password": "Jelszó"
+        },
+        "data_description": {
+          "host": "Például devse.local vagy 192.168.1.50",
+          "token": "Elég az állapothoz, START/STOP-hoz, üzemmódhoz és áramhoz",
+          "password": "A set_limit és set_plan szolgáltatáshoz kell"
+        }
+      },
+      "zeroconf_confirm": {
+        "title": "DABSTRACTER EVSE-t találtam",
+        "description": "{name} töltő a(z) {host} címen. Add meg a kijelző-tokent, egy jelszót, vagy mindkettőt.",
+        "data": {
+          "token": "Kijelző-token",
+          "username": "Felhasználó",
+          "password": "Jelszó"
+        }
+      },
+      "reauth_confirm": {
+        "title": "Újra bejelentkezés",
+        "description": "A(z) {host} töltő nem fogadta el a tárolt belépési adatokat.",
+        "data": {
+          "token": "Kijelző-token",
+          "username": "Felhasználó",
+          "password": "Jelszó"
+        }
+      },
+      "reconfigure": {
+        "title": "Kapcsolat módosítása",
+        "data": {
+          "host": "Gépnév vagy IP-cím",
+          "token": "Kijelző-token",
+          "username": "Felhasználó",
+          "password": "Jelszó"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "A töltő nem válaszolt.",
+      "invalid_auth": "Hibás token vagy jelszó (vagy a bejelentkezés 30 mp-re zárolva).",
+      "not_dabstracter": "Ez az eszköz nem DABSTRACTER EVSE-nek tűnik.",
+      "role_too_low": "Ezzel csak megtekinteni lehet. Használd a kijelző-tokent vagy a user / admin jelszót.",
+      "unknown": "Váratlan hiba."
+    },
+    "abort": {
+      "already_configured": "Ez a töltő már be van állítva.",
+      "not_dabstracter": "Ez az eszköz nem DABSTRACTER EVSE-nek tűnik.",
+      "reauth_successful": "Belépési adatok frissítve.",
+      "reconfigure_successful": "Kapcsolat frissítve.",
+      "wrong_device": "Ezen a címen egy másik töltő van."
+    }
+  },
+  "selector": {
+    "username": {
+      "options": { "user": "user", "admin": "admin" }
+    },
+    "limit_type": {
+      "options": { "soc": "Akku %", "kwh": "kWh" }
+    },
+    "plan_type": {
+      "options": { "kwh": "kWh", "km": "km", "soc": "Akku %" }
+    }
+  },
+  "entity": {
+    "sensor": {
+      "charging_power": { "name": "Töltési teljesítmény" },
+      "charging_current": { "name": "Töltőáram" },
+      "set_current": { "name": "Alkalmazott áram" },
+      "ev_status": {
+        "name": "EV állapot",
+        "state": {
+          "selftest": "Önteszt",
+          "ready": "Kész (nincs autó)",
+          "init": "Indulás",
+          "connected": "Autó csatlakoztatva",
+          "connected_b2": "Autó csatlakoztatva (B2)",
+          "charging": "Töltés",
+          "charging_vent": "Töltés (szellőztetés)",
+          "cp_pe_short": "CP-PE zárlat",
+          "rcmu_fault": "RCMU hiba",
+          "diode_short": "Dióda zárlat",
+          "over_dlb": "Túl terheléselosztás",
+          "fault": "Hiba",
+          "stopped": "Leállítva",
+          "unknown": "Ismeretlen"
+        }
+      },
+      "mode_sensor": { "name": "Üzemmód" },
+      "session_energy": { "name": "Munkamenet energia" },
+      "total_energy": { "name": "Összes energia" },
+      "today_energy": { "name": "Mai energia" },
+      "month_energy": { "name": "Havi energia" },
+      "price": { "name": "Aktuális ár" },
+      "band_used": { "name": "Kedvezményes sáv felhasznált" },
+      "band_limit": { "name": "Kedvezményes sáv határa" },
+      "pv_power": { "name": "PV teljesítmény" },
+      "grid_power": { "name": "Hálózati teljesítmény" },
+      "house_power": { "name": "Ház fogyasztás" },
+      "battery_power": { "name": "Házi akku teljesítmény" },
+      "battery_soc": { "name": "Házi akku" },
+      "wifi_rssi": { "name": "Wi-Fi jelerősség" }
+    },
+    "binary_sensor": {
+      "charging": { "name": "Töltés" },
+      "car_connected": { "name": "Autó csatlakoztatva" },
+      "limit_active": { "name": "Töltési limit aktív" },
+      "plan_active": { "name": "Célidős töltés aktív" },
+      "fail_safe": { "name": "Fail-safe / biztonsági leállás" }
+    },
+    "select": {
+      "mode": {
+        "name": "Üzemmód",
+        "state": { "man": "MAN", "pv": "PV", "pv_eco": "PV ECO", "fast": "FAST" }
+      }
+    },
+    "number": {
+      "max_current": { "name": "Max. áram" }
+    },
+    "button": {
+      "start": { "name": "Start" },
+      "stop": { "name": "Stop" },
+      "cpwake": { "name": "Autó ébresztése (CP)" }
+    }
+  },
+  "services": {
+    "set_limit": {
+      "name": "Töltési limit beállítása",
+      "description": "Leállítja a töltést adott akku % vagy kWh után, bármely üzemmódban. Jelszó kell hozzá.",
+      "fields": {
+        "device_id": { "name": "Töltő", "description": "Elhagyható, ha csak egy töltő van." },
+        "clear": { "name": "Törlés", "description": "A limit törlése." },
+        "type": { "name": "Típus", "description": "Akku % vagy kWh." },
+        "value": { "name": "Érték", "description": "Cél % vagy kWh." },
+        "start_soc": { "name": "Akku most", "description": "Az autó jelenlegi akku %-a (% limithez MQTT SOC nélkül)." }
+      }
+    },
+    "set_plan": {
+      "name": "Célidős töltés beállítása",
+      "description": "Adott időpontra legyen kész kWh / km / akku %. Jelszó kell hozzá.",
+      "fields": {
+        "device_id": { "name": "Töltő", "description": "Elhagyható, ha csak egy töltő van." },
+        "cancel": { "name": "Megszakítás", "description": "A célidős töltés megszakítása." },
+        "type": { "name": "Típus", "description": "kWh, km vagy akku %." },
+        "value": { "name": "Érték", "description": "A töltendő mennyiség." },
+        "time": { "name": "Kész ekkorra", "description": "ÓÓ:PP" },
+        "start_soc": { "name": "Akku most", "description": "Az autó jelenlegi akku %-a." }
+      }
+    }
+  },
+  "exceptions": {
+    "password_required": { "message": "Ehhez user vagy admin jelszó kell az integráció beállításaiban (a kijelző-token nem elég)." },
+    "value_required": { "message": "Adj meg értéket, vagy kapcsold be a törlést." },
+    "value_time_required": { "message": "Adj meg értéket és időpontot, vagy kapcsold be a megszakítást." },
+    "bad_time": { "message": "Az időpont formátuma ÓÓ:PP." },
+    "unknown_device": { "message": "Ismeretlen DABSTRACTER eszköz." },
+    "device_required": { "message": "Több töltő van beállítva: válassz egyet." },
+    "forbidden": { "message": "A töltő elutasította: {msg}" },
+    "rejected": { "message": "A töltő nem fogadta el a kérést: {msg}" },
+    "comm_error": { "message": "Nem érem el a töltőt: {msg}" },
+    "command_failed": { "message": "A töltő nem tudta végrehajtani: {cmd}." }
+  }
+}
