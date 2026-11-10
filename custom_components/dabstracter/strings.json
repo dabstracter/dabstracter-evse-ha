@@ -1,0 +1,172 @@
+{
+  "config": {
+    "flow_title": "{name}",
+    "step": {
+      "user": {
+        "title": "DABSTRACTER EVSE",
+        "description": "Connect to the charger over the local network. Give the display token (Config → Display), a user/admin password, or both. Charging limit and target-time charging need the password.",
+        "data": {
+          "host": "Host or IP address",
+          "token": "Display token",
+          "username": "User",
+          "password": "Password"
+        },
+        "data_description": {
+          "host": "For example devse.local or 192.168.1.50",
+          "token": "Enough for status, START/STOP, mode and current",
+          "password": "Needed for set_limit and set_plan"
+        }
+      },
+      "zeroconf_confirm": {
+        "title": "DABSTRACTER EVSE found",
+        "description": "Charger {name} found at {host}. Give the display token, a password, or both.",
+        "data": {
+          "token": "Display token",
+          "username": "User",
+          "password": "Password"
+        }
+      },
+      "reauth_confirm": {
+        "title": "Log in again",
+        "description": "The charger at {host} refused the stored credentials.",
+        "data": {
+          "token": "Display token",
+          "username": "User",
+          "password": "Password"
+        }
+      },
+      "reconfigure": {
+        "title": "Change connection",
+        "data": {
+          "host": "Host or IP address",
+          "token": "Display token",
+          "username": "User",
+          "password": "Password"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "The charger did not answer.",
+      "invalid_auth": "Wrong token or password (or the login is locked for 30 s).",
+      "not_dabstracter": "This device does not look like a DABSTRACTER EVSE.",
+      "role_too_low": "This credential can only view. Use the display token or the user / admin password.",
+      "unknown": "Unexpected error."
+    },
+    "abort": {
+      "already_configured": "This charger is already set up.",
+      "not_dabstracter": "This device does not look like a DABSTRACTER EVSE.",
+      "reauth_successful": "Credentials updated.",
+      "reconfigure_successful": "Connection updated.",
+      "wrong_device": "That address belongs to a different charger."
+    }
+  },
+  "selector": {
+    "username": {
+      "options": { "user": "user", "admin": "admin" }
+    },
+    "limit_type": {
+      "options": { "soc": "Battery %", "kwh": "kWh" }
+    },
+    "plan_type": {
+      "options": { "kwh": "kWh", "km": "km", "soc": "Battery %" }
+    }
+  },
+  "entity": {
+    "sensor": {
+      "charging_power": { "name": "Charging power" },
+      "charging_current": { "name": "Charging current" },
+      "set_current": { "name": "Applied current" },
+      "ev_status": {
+        "name": "EV status",
+        "state": {
+          "selftest": "Self test",
+          "ready": "Ready (no car)",
+          "init": "Init",
+          "connected": "Car connected",
+          "connected_b2": "Car connected (B2)",
+          "charging": "Charging",
+          "charging_vent": "Charging (ventilation)",
+          "cp_pe_short": "CP-PE short",
+          "rcmu_fault": "RCMU fault",
+          "diode_short": "Diode short",
+          "over_dlb": "Over load balance",
+          "fault": "Fault",
+          "stopped": "Stopped",
+          "unknown": "Unknown"
+        }
+      },
+      "mode_sensor": { "name": "Mode" },
+      "session_energy": { "name": "Session energy" },
+      "total_energy": { "name": "Total energy" },
+      "today_energy": { "name": "Energy today" },
+      "month_energy": { "name": "Energy this month" },
+      "price": { "name": "Current price" },
+      "band_used": { "name": "Discount band used" },
+      "band_limit": { "name": "Discount band limit" },
+      "pv_power": { "name": "PV power" },
+      "grid_power": { "name": "Grid power" },
+      "house_power": { "name": "House power" },
+      "battery_power": { "name": "Home battery power" },
+      "battery_soc": { "name": "Home battery" },
+      "wifi_rssi": { "name": "Wi-Fi signal" }
+    },
+    "binary_sensor": {
+      "charging": { "name": "Charging" },
+      "car_connected": { "name": "Car connected" },
+      "limit_active": { "name": "Charging limit active" },
+      "plan_active": { "name": "Target-time charging active" },
+      "fail_safe": { "name": "Fail-safe / safety stop" }
+    },
+    "select": {
+      "mode": {
+        "name": "Mode",
+        "state": { "man": "MAN", "pv": "PV", "pv_eco": "PV ECO", "fast": "FAST" }
+      }
+    },
+    "number": {
+      "max_current": { "name": "Max current" }
+    },
+    "button": {
+      "start": { "name": "Start" },
+      "stop": { "name": "Stop" },
+      "cpwake": { "name": "Wake car (CP)" }
+    }
+  },
+  "services": {
+    "set_limit": {
+      "name": "Set charging limit",
+      "description": "Stop charging after a battery % or kWh, in any mode. Needs the password.",
+      "fields": {
+        "device_id": { "name": "Charger", "description": "Optional when only one charger is set up." },
+        "clear": { "name": "Clear", "description": "Remove the limit." },
+        "type": { "name": "Type", "description": "Battery % or kWh." },
+        "value": { "name": "Value", "description": "Target % or kWh." },
+        "start_soc": { "name": "Battery now", "description": "Battery % of the car now (for a % limit without MQTT SOC)." }
+      }
+    },
+    "set_plan": {
+      "name": "Set target-time charging",
+      "description": "Have kWh / km / battery % ready by a time. Needs the password.",
+      "fields": {
+        "device_id": { "name": "Charger", "description": "Optional when only one charger is set up." },
+        "cancel": { "name": "Cancel", "description": "Cancel the plan." },
+        "type": { "name": "Type", "description": "kWh, km or battery %." },
+        "value": { "name": "Value", "description": "Amount to charge." },
+        "time": { "name": "Ready by", "description": "HH:MM" },
+        "start_soc": { "name": "Battery now", "description": "Battery % of the car now." }
+      }
+    }
+  },
+  "exceptions": {
+    "password_required": { "message": "This needs the user or admin password in the integration settings (the display token is not enough)." },
+    "value_required": { "message": "Give a value, or set clear." },
+    "value_time_required": { "message": "Give a value and a time, or set cancel." },
+    "bad_time": { "message": "The time must be HH:MM." },
+    "unknown_device": { "message": "Unknown DABSTRACTER device." },
+    "device_required": { "message": "Several chargers are set up: choose one." },
+    "forbidden": { "message": "The charger refused: {msg}" },
+    "rejected": { "message": "The charger rejected the request: {msg}" },
+    "comm_error": { "message": "Could not reach the charger: {msg}" },
+    "command_failed": { "message": "The charger could not execute {cmd}." }
+  }
+}

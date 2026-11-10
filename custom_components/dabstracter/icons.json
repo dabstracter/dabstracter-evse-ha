@@ -1,0 +1,35 @@
+{
+  "entity": {
+    "sensor": {
+      "ev_status": { "default": "mdi:ev-station" },
+      "mode_sensor": { "default": "mdi:tune-variant" },
+      "price": { "default": "mdi:cash" },
+      "band_used": { "default": "mdi:gauge" },
+      "band_limit": { "default": "mdi:gauge-full" },
+      "pv_power": { "default": "mdi:solar-power" },
+      "grid_power": { "default": "mdi:transmission-tower" },
+      "house_power": { "default": "mdi:home-lightning-bolt" },
+      "battery_power": { "default": "mdi:home-battery" },
+      "charging_power": { "default": "mdi:ev-plug-type2" }
+    },
+    "binary_sensor": {
+      "limit_active": { "default": "mdi:battery-lock" },
+      "plan_active": { "default": "mdi:clock-end" }
+    },
+    "select": {
+      "mode": { "default": "mdi:tune-variant" }
+    },
+    "number": {
+      "max_current": { "default": "mdi:current-ac" }
+    },
+    "button": {
+      "start": { "default": "mdi:play" },
+      "stop": { "default": "mdi:stop" },
+      "cpwake": { "default": "mdi:alarm-light-outline" }
+    }
+  },
+  "services": {
+    "set_limit": { "service": "mdi:battery-lock" },
+    "set_plan": { "service": "mdi:clock-end" }
+  }
+}
