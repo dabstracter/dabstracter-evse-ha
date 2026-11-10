@@ -1,154 +1,150 @@
-# DABSTRACTER EVSE – Home Assistant integráció + töltőkártya
+# DABSTRACTER EVSE – Home Assistant integration + charger card
 
-Natív Home Assistant integráció a DABSTRACTER EVSE fali töltőhöz. **Közvetlenül a helyi Wi-Fi hálózaton**
-beszél a töltő HTTP API-jával: nincs MQTT, nincs felhő, internet nélkül is működik. A csomagban van egy
-telefonra tervezett Lovelace kártya is (`dabstracter-charger-card`), amit az integráció automatikusan betölt.
+Native Home Assistant integration for the DABSTRACTER EVSE wallbox. It talks to the charger over the
+**local Wi-Fi HTTP API** — no MQTT, no cloud, works offline. The package includes a phone-first Lovelace
+card (`dabstracter-charger-card`) that the integration loads automatically.
 
-*English summary: native local-polling Home Assistant integration for the DABSTRACTER EVSE wallbox (HTTP API
-over Wi-Fi, no MQTT, no cloud) plus a bundled, phone-first Lovelace charger card with a visual editor.*
+[Magyar leírás → README.hu.md](README.hu.md)
 
 | | |
 |---|---|
-| Verzió | 0.2.0 ([változásnapló](CHANGELOG.md)) |
-| Home Assistant | 2025.1 vagy újabb (a logó megjelenítéséhez 2026.x) |
-| Töltő firmware | 2.8.76 vagy újabb (`/api/mini`) |
-| Kapcsolat | helyi HTTP, lekérdezéses (`local_polling`) |
-| Licenc | [MIT](LICENSE) |
+| Version | 0.2.0 ([changelog](CHANGELOG.md)) |
+| Home Assistant | 2025.1 or newer (logo display needs 2026.x) |
+| Charger firmware | 2.8.76 or newer (`/api/mini`) |
+| Connection | local HTTP polling (`local_polling`) |
+| License | [MIT](LICENSE) |
 
-## Tartalom
+## Contents
 
-- [MQTT vagy integráció?](#mqtt-vagy-integráció-válassz-egyet)
-- [Telepítés](#telepítés) · [Beállítás](#beállítás) · [Entitások](#entitások) · [Szolgáltatások](#szolgáltatások)
-- [Töltőkártya](#töltőkártya) · [Hibaelhárítás](#hibaelhárítás) · [Hogyan működik](#hogyan-működik)
+- [MQTT or this integration?](#mqtt-or-this-integration-pick-one)
+- [Installation](#installation) · [Setup](#setup) · [Entities](#entities) · [Services](#services)
+- [Charger card](#charger-card) · [Troubleshooting](#troubleshooting) · [How it works](#how-it-works)
 
-## MQTT vagy integráció? Válassz egyet!
+## MQTT or this integration? Pick one
 
-A töltő firmware-je már most is küld **MQTT Home Assistant discovery** üzeneteket (Config → MQTT →
-„HA discovery”). Ha mindkettőt bekapcsolod, minden mérés **kétszer** jelenik meg (két eszköz, duplikált
-entitások).
+The charger firmware can also publish **MQTT Home Assistant discovery** (Config → MQTT → “HA discovery”).
+If you enable both, every measurement appears **twice** (two devices, duplicated entities).
 
-| | Ez az integráció (HTTP) | MQTT discovery (firmware) |
+| | This integration (HTTP) | MQTT discovery (firmware) |
 |---|---|---|
-| Kell hozzá | csak a töltő IP-címe / neve | MQTT bróker (pl. Mosquitto add-on) |
-| Frissítés | lekérdezés: 5 s élő adat, 30 s állapot, 60 s energia | push, a firmware küldési ütemében |
-| Vezérlés | START / STOP / CP-ébresztés, üzemmód, áram, **töltési limit, célidős töltés** | START / STOP, üzemmód, áram |
-| Energia-adatok | munkamenet, összes, mai, havi kWh, ár, kedvezményes sáv | a firmware MQTT-adatai szerint |
-| Töltőkártya | automatikusan, entitás-felismeréssel | kézzel kell entitásokat választani |
-| Felismerés | zeroconf (`devse*` / `dabstracter*` nevű `_http._tcp`) | MQTT discovery |
+| Needs | charger IP / hostname only | MQTT broker (e.g. Mosquitto add-on) |
+| Updates | poll: 5 s live, 30 s status, 60 s energy | push, at the firmware publish rate |
+| Control | START / STOP / CP wake, mode, current, **charge limit, deadline plan** | START / STOP, mode, current |
+| Energy data | session, total, today, month kWh, price, discounted band | as published by firmware MQTT |
+| Charger card | automatic, entity discovery | pick entities manually |
+| Discovery | zeroconf (`devse*` / `dabstracter*` on `_http._tcp`) | MQTT discovery |
 
-**Javaslat:** ha még nem használsz MQTT-t, ezt az integrációt válaszd. Ha átállsz rá, a töltőn kapcsold ki a
-*HA discovery*-t (vagy az egész MQTT-t), és a Home Assistantban töröld a régi MQTT-s eszközt
-(Beállítások → Eszközök → az MQTT-s eszköz → ⋮ → Törlés).
+**Recommendation:** if you are not already on MQTT, use this integration. When switching, disable
+*HA discovery* (or MQTT entirely) on the charger, then delete the old MQTT device in Home Assistant
+(Settings → Devices → MQTT device → ⋮ → Delete).
 
-## Telepítés
+## Installation
 
-### HACS-szal
-1. HACS → ⋮ → *Custom repositories* → URL: `https://github.com/dabstracter/dabstracter-hacs`, típus: **Integration**.
-2. Keresd meg: **DABSTRACTER EVSE** → *Download*.
-3. Indítsd újra a Home Assistantot.
+### With HACS
+1. HACS → ⋮ → *Custom repositories* → URL: `https://github.com/dabstracter/dabstracter-hacs`, type: **Integration**.
+2. Search for **DABSTRACTER EVSE** → *Download*.
+3. Restart Home Assistant.
 
-### Kézzel
-1. Másold a teljes `custom_components/dabstracter` mappát a HA `config/custom_components/` mappájába
-   (a `brand`, `translations` és `www` almappával együtt). Helyes útvonal:
+### Manual
+1. Copy the full `custom_components/dabstracter` folder into your HA `config/custom_components/`
+   (including `brand`, `translations`, and `www`). Correct path:
    `config/custom_components/dabstracter/manifest.json`.
-2. Indítsd újra a Home Assistantot (Beállítások → Rendszer → bekapcsoló ikon → *Újraindítás*). A
-   „YAML újratöltése” nem elég.
-3. Frissítsd a böngészőt (Ctrl+F5), hogy a logó és a kártya betöltődjön.
+2. Restart Home Assistant (Settings → System → power icon → *Restart*). Reloading YAML is not enough.
+3. Hard-refresh the browser (Ctrl+F5) so the logo and card load.
 
-Frissítésnél ugyanígy: a mappa felülírása, majd újraindítás.
+To update: overwrite the folder the same way, then restart.
 
-## Beállítás
+## Setup
 
-### 1. Belépési adat a töltőből
-- **Kijelző-token:** a töltő webes felületén, **admin**ként: Config → Kijelző. Ha még nincs, ott generálható.
-  Elég az állapothoz, START / STOP-hoz, üzemmódhoz és áramhoz.
-- **Jelszó:** a `user` (vagy `admin`) jelszava. **A töltési limithez és a célidős töltéshez kell**, mert
-  azokat a firmware tokennel nem engedi.
-- Megadhatod mindkettőt: ilyenkor a lekérdezés a tokennel megy, a limit / célidő a jelszóval.
-- Ha a töltőn nincs admin jelszó (nyitott felület), a mezők üresen hagyhatók.
-- A `viewer` jelszót az integráció elutasítja: azzal nem lehet vezérelni.
+### 1. Credentials from the charger
+- **Display token:** on the charger web UI as **admin**: Config → Display. Generate one if needed.
+  Enough for status, START / STOP, mode, and current.
+- **Password:** `user` or `admin` password. **Required for charge limit and deadline plan** — the firmware
+  does not allow those with the display token alone.
+- You can provide both: polling uses the token; limit / plan use the password.
+- If the charger has no admin password (open UI), leave the fields empty.
+- A `viewer` password is rejected: it cannot control the charger.
 
-### 2. Integráció hozzáadása
-*Beállítások → Eszközök és szolgáltatások → Integráció hozzáadása → DABSTRACTER EVSE.* Ha a töltő neve
-`devse…` vagy `dabstracter…`, a HA magától is felajánlja a „Felfedezve” sorban.
+### 2. Add the integration
+*Settings → Devices & services → Add integration → DABSTRACTER EVSE.* If the charger hostname starts with
+`devse…` or `dabstracter…`, Home Assistant may also offer it under “Discovered”.
 
-| Mező | Mire jó |
+| Field | Purpose |
 |---|---|
-| Gépnév vagy IP | pl. `192.168.1.50` vagy `devse.local`. Az IP megbízhatóbb: foglalj neki fix címet a routerben |
-| Kijelző-token | lásd fent |
-| Felhasználó + jelszó | `user` vagy `admin` + jelszó |
+| Hostname or IP | e.g. `192.168.1.50` or `devse.local`. IP is more reliable — reserve a DHCP lease |
+| Display token | see above |
+| Username + password | `user` or `admin` + password |
 
-Utólag: az integráció ⋮ menüjében *Újrakonfigurálás* (cím, token, jelszó). Ha a töltő elutasítja a tárolt
-adatot (pl. jelszócsere vagy új token), a HA magától kéri az újra-bejelentkezést.
+Later: integration ⋮ menu → *Reconfigure* (host, token, password). If the charger rejects stored credentials
+(e.g. password or token change), Home Assistant prompts for re-authentication.
 
-> **Miért nem Basic Auth?** A firmware minden POST-hoz CSRF-fejlécet kér, és ha ez a fejléc ott van, a Basic
-> Auth-ot nem fogadja el. Ezért jelszavas módban az integráció egyszer bejelentkezik (`POST /api/login`,
-> „emlékezz rám”, 30 nap), és a munkamenet-sütit használja. A töltő eseménynaplójában ez egy
-> „Bejelentkezes: user” sor.
+> **Why not Basic Auth?** The firmware requires a CSRF header on every POST, and when that header is
+> present it rejects Basic Auth. With a password, the integration logs in once (`POST /api/login`,
+> “remember me”, 30 days) and reuses the session cookie.
 
-## Entitások
+## Entities
 
-Egy eszköz, 28 entitás. Az entitás-azonosítók a HA nyelvén generálódnak (pl. magyar HA-ban
-`sensor.dabstracter_devse_toltesi_teljesitmeny`).
+One device, 28 entities. Entity IDs follow the Home Assistant language
+(e.g. on a Hungarian HA: `sensor.dabstracter_devse_toltesi_teljesitmeny`).
 
-### Szenzorok
+### Sensors
 
-| Név (HU) | Kulcs | Egység | Forrás | Megjegyzés |
+| Name (EN) | Key | Unit | Source | Notes |
 |---|---|---|---|---|
-| Töltési teljesítmény | `charging_power` | W | `/api/mini` `pW` | |
-| Töltőáram | `charging_current` | A | `/api/mini` `a` | |
-| Alkalmazott áram | `set_current` | A | `/api/mini` `setA` | alapból rejtett; a DLM utoljára beállított árama |
-| EV állapot | `ev_status` | – | `/api/mini` `st` | lista: kész, csatlakoztatva, töltés, leállítva, hiba… attribútum: `code`, `text`, `full` |
-| Üzemmód | `mode_sensor` | – | `/api/mini` `mode` | alapból rejtett (a választó helyett automatizmusokhoz) |
-| Munkamenet energia | `session_energy` | kWh | `/api/mini` `sessWh` | attribútum: `duration_s`, `cost` (Ft) |
-| Összes energia | `total_energy` | kWh | `/api/energy` `total` | Energia-irányítópultra tehető; attribútum: napelemes / akkus rész |
-| Mai energia | `today_energy` | kWh | `/api/energy` `days` | |
-| Havi energia | `month_energy` | kWh | `/api/energy` `months` | |
-| Aktuális ár | `price` | HUF/kWh | `/api/energy` `cost.price` | csak bekapcsolt költségszámításnál; attribútum: `tier`, `low`, `high` |
-| Kedvezményes sáv felhasznált | `band_used` | kWh | `cost.usedWh` | attribútum: `percent`, `tier`, `period`, `monthly`, `partial` |
-| Kedvezményes sáv határa | `band_limit` | kWh | `cost.limitWh` | |
-| PV teljesítmény | `pv_power` | W | `/api/mini` `pv` | |
-| Hálózati teljesítmény | `grid_power` | W | `/api/mini` `grid` | + vételezés, − betáplálás |
-| Ház fogyasztás | `house_power` | W | `/api/mini` `house` | az autó nélkül |
-| Házi akku teljesítmény | `battery_power` | W | `/api/mini` `batW` | + kisütés, − töltés |
-| Házi akku | `battery_soc` | % | `/api/mini` `soc` | |
-| Wi-Fi jelerősség | `wifi_rssi` | dBm | `/api/mini` `rssi` | diagnosztikai, alapból rejtett |
+| Charging power | `charging_power` | W | `/api/mini` `pW` | |
+| Charging current | `charging_current` | A | `/api/mini` `a` | |
+| Applied current | `set_current` | A | `/api/mini` `setA` | hidden by default; last DLM-set current |
+| EV status | `ev_status` | – | `/api/mini` `st` | ready, connected, charging, stopped, error… attrs: `code`, `text`, `full` |
+| Mode | `mode_sensor` | – | `/api/mini` `mode` | hidden by default (use the select for UI; this is for automations) |
+| Session energy | `session_energy` | kWh | `/api/mini` `sessWh` | attrs: `duration_s`, `cost` |
+| Total energy | `total_energy` | kWh | `/api/energy` `total` | Energy dashboard compatible; attrs: PV / battery share |
+| Today energy | `today_energy` | kWh | `/api/energy` `days` | |
+| Month energy | `month_energy` | kWh | `/api/energy` `months` | |
+| Current price | `price` | HUF/kWh | `/api/energy` `cost.price` | only if cost calculation is enabled; attrs: `tier`, `low`, `high` |
+| Discount band used | `band_used` | kWh | `cost.usedWh` | attrs: `percent`, `tier`, `period`, `monthly`, `partial` |
+| Discount band limit | `band_limit` | kWh | `cost.limitWh` | |
+| PV power | `pv_power` | W | `/api/mini` `pv` | |
+| Grid power | `grid_power` | W | `/api/mini` `grid` | + import, − export |
+| House load | `house_power` | W | `/api/mini` `house` | excluding the car |
+| Home battery power | `battery_power` | W | `/api/mini` `batW` | + discharge, − charge |
+| Home battery | `battery_soc` | % | `/api/mini` `soc` | |
+| Wi-Fi signal | `wifi_rssi` | dBm | `/api/mini` `rssi` | diagnostic, hidden by default |
 
-Ami a töltőn nincs bekötve (pl. nincs P1 mérő vagy inverter), az „ismeretlen” marad.
+Inputs that are not wired on the charger (e.g. no P1 meter or inverter) stay “unknown”.
 
-### Egyéb entitások
+### Other entities
 
-| Típus | Név (HU) | Kulcs | Működés |
+| Type | Name (EN) | Key | Behaviour |
 |---|---|---|---|
-| binary_sensor | Töltés | `charging` | EV állapot 5 vagy 6 |
-| binary_sensor | Autó csatlakoztatva | `car_connected` | EV állapot 3–6 |
-| binary_sensor | Töltési limit aktív | `limit_active` | attribútumban a limit részletei (`type`, `value`, `remainWh`, `etaS`…) |
-| binary_sensor | Célidős töltés aktív | `plan_active` | attribútumban a terv (`deadlineHm`, `etaHm`, `reachable`…) |
-| binary_sensor | Fail-safe / biztonsági leállás | `fail_safe` | diagnosztikai |
-| select | Üzemmód | `mode` | MAN / PV / PV ECO / FAST |
-| number | Max. áram | `max_current` | MAN-ban a kézi áram, más módban a felső korlát (mint a töltő +/- gombja); `minA`…32 A |
-| button | Start | `start` | a firmware-ben MAN módba vált, kézi árammal indít (mint a helyi gomb) |
+| binary_sensor | Charging | `charging` | EV status 5 or 6 |
+| binary_sensor | Car connected | `car_connected` | EV status 3–6 |
+| binary_sensor | Charge limit active | `limit_active` | limit details in attributes |
+| binary_sensor | Deadline plan active | `plan_active` | plan details in attributes |
+| binary_sensor | Fail-safe | `fail_safe` | diagnostic |
+| select | Mode | `mode` | MAN / PV / PV ECO / FAST |
+| number | Max current | `max_current` | manual current in MAN, upper cap otherwise; `minA`…32 A |
+| button | Start | `start` | switches to MAN and starts with manual current |
 | button | Stop | `stop` | |
-| button | Autó ébresztése (CP) | `cpwake` | CP-relés ébresztés, ha az autó alszik |
+| button | Wake car (CP) | `cpwake` | CP-relay wake if the car is asleep |
 
-## Szolgáltatások
+## Services
 
-Mindkét szolgáltatás **jelszót igényel** (lásd [Beállítás](#beállítás)), és visszaadja a töltő válaszát
-(`response_variable`). Több töltőnél add meg a `device_id`-t is.
+Both services **require a password** (see [Setup](#setup)) and return the charger response
+(`response_variable`). With multiple chargers, pass `device_id`.
 
 ```yaml
-# 80 %-nál álljon le (a mostani akku 45 %)
+# Stop at 80 % (current battery 45 %)
 action: dabstracter.set_limit
 data:
   type: soc        # soc | kwh
   value: 80
-  start_soc: 45    # opcionális; MQTT-s SOC nélkül ebből számol
+  start_soc: 45    # optional; use if you have no MQTT SOC
 ---
 action: dabstracter.set_limit
 data:
   clear: true
 ---
-# reggel 7-re legyen benne 20 kWh
+# Have 20 kWh by 07:00
 action: dabstracter.set_plan
 data:
   type: kwh        # kwh | km | soc
@@ -160,7 +156,7 @@ data:
   cancel: true
 ```
 
-Példa-automatizmus: ha a kedvezményes sáv elfogyott, váltson PV ECO-ra.
+Example automation: when the discounted band is exhausted, switch to PV ECO.
 
 ```yaml
 triggers:
@@ -176,84 +172,81 @@ actions:
       option: pv_eco
 ```
 
-## Töltőkártya
+## Charger card
 
-Az integráció a kártyát maga szolgálja ki (`/dabstracter/dabstracter-charger-card.js`) és minden dashboardon
-betölti, **nem kell kézzel erőforrást felvenni**. Dashboard szerkesztése → *Kártya hozzáadása* →
-**DABSTRACTER charger**. A vizuális szerkesztőben elég a töltő eszközt kiválasztani; az entitásokat
-magától megtalálja, és egyenként felülírhatók.
+The integration serves the card (`/dabstracter/dabstracter-charger-card.js`) and loads it on every
+dashboard — **no manual resource entry**. Edit dashboard → *Add card* → **DABSTRACTER charger**.
+In the visual editor, pick the charger device; entities are discovered automatically and can be overridden.
 
 ```yaml
 type: custom:dabstracter-charger-card
-device_id: <a töltő eszköz-azonosítója>   # elhagyható, ha csak egy töltő van
-title: Garázs                              # opcionális
-show_limits: true                          # töltési limit és célidős töltés gyorsgombokkal
-show_band: true                            # havi kedvezményes sáv
-show_stats: true                           # mai / havi / összes kWh
-show_flow: true                            # energiafolyam
-flow_view: bar                             # bar (sáv) | diagram; a kártyán átváltható, a böngésző megjegyzi
-entities:                                  # opcionális felülírás szerepenként
-  power: sensor.valami_mas_teljesitmeny
+device_id: <charger device id>   # optional if you have only one charger
+title: Garage                    # optional
+show_limits: true                # charge limit + deadline plan quick actions
+show_band: true                  # monthly discounted band
+show_stats: true                 # today / month / total kWh
+show_flow: true                  # energy flow
+flow_view: bar                   # bar | diagram; switchable on the card, remembered in the browser
+entities:                        # optional per-role overrides
+  power: sensor.some_other_power
 ```
 
-Felülírható szerepek: `status`, `power`, `current`, `session`, `mode`, `amps`, `start`, `stop`, `cpwake`,
+Overridable roles: `status`, `power`, `current`, `session`, `mode`, `amps`, `start`, `stop`, `cpwake`,
 `band`, `band_limit`, `price`, `pv`, `grid`, `house`, `battery`, `soc`, `charging`, `limit`, `plan`,
 `today`, `month`, `total`.
 
-Tartalom, felülről lefelé:
-- állapot (színes pont, töltésnél pulzál) + üzemmód + teljesítmény; alatta áram, munkamenet kWh, a töltés
-  ideje és költsége (ha a töltőn be van kapcsolva a költségszámítás), valamint az aktív limit / célidő;
-- **START** és **STOP** egymás mellett; a „Továbbiak” alatt CP-ébresztés;
-- üzemmód-szegmensek rövid magyarázattal;
-- áram −/+ gombokkal és csúszkával (rövid szünet után küldi, így több lépés egy parancs);
-- **töltési limit** (összecsukható): 80 / 90 / 100 %, 10 / 20 / 30 kWh egy érintéssel, „Limit törlése”;
-- **célidős töltés** (összecsukható): mennyit (10 / 20 / 30 kWh) + mikorra (06:00 / 07:00 / 08:00) → Beállítás,
-  aktívnál „Megszakítás”, a fejlécben a várható befejezés. Mindkettőhöz jelszó kell az integrációban;
-- havi kedvezményes sáv: zöld → 75 %-tól sárga → 90 %-tól narancs → a határ felett piros, mellette az ár;
-- mai / havi / összes kWh három kis csempén;
-- energiafolyam két nézetben (sáv vagy diagram);
-- lábléc: „Frissítve 4 mp-e”, vagy pirosan „Nincs kapcsolat a töltővel”.
+Top to bottom:
+- status (coloured dot, pulses while charging) + mode + power; then current, session kWh, session
+  duration and cost (if cost calculation is enabled on the charger), plus active limit / plan;
+- **START** and **STOP** side by side; CP wake under “More”;
+- mode segments with short explanations;
+- current with −/+ and a slider (debounced so multi-step changes become one command);
+- **charge limit** (collapsible): 80 / 90 / 100 %, 10 / 20 / 30 kWh, “Clear limit”;
+- **deadline plan** (collapsible): how much (10 / 20 / 30 kWh) + by when (06:00 / 07:00 / 08:00) → Set;
+  “Cancel” when active, ETA in the header. Both need a password in the integration;
+- monthly discounted band: green → yellow from 75 % → orange from 90 % → red above the limit, with price;
+- today / month / total kWh tiles;
+- energy flow in bar or diagram view;
+- footer: “Updated 4 s ago”, or a red “No connection to charger” warning.
 
-A kártya magyarul jelenik meg, ha a HA nyelve magyar, egyébként angolul. Nincs külső betöltés (CDN).
+The card is Hungarian when the HA language is Hungarian, otherwise English. No CDN / external loads.
 
-## Hibaelhárítás
+## Troubleshooting
 
-| Jelenség | Teendő |
+| Symptom | What to do |
 |---|---|
-| Nem található az integráció | Rossz mappa: a `manifest.json`-nak itt kell lennie: `config/custom_components/dabstracter/`. Újraindítás kell. |
-| „A töltő nem válaszolt” | Cím / IP ellenőrzése böngészőben (`http://<cím>/`); `.local` név helyett próbáld az IP-t. |
-| „Hibás token vagy jelszó” | Öt hibás próbálkozás után a töltő 30 mp-re zárol. Tokennél admin felületről másold újra. |
-| „Ezzel csak megtekinteni lehet” | `viewer` jelszót adtál meg; használd a tokent vagy a `user` jelszót. |
-| A limit / célidő hibát ad | Jelszó kell hozzá (Újrakonfigurálás → jelszó). |
-| Duplikált entitások | Az MQTT discovery is be van kapcsolva a töltőn (lásd fent). |
-| „Felfedezve: devse2” | Vagy egy második töltő, vagy ugyanaz a töltő mDNS-névütközés miatt más néven. Ha ugyanaz, a ⋮ menüben hagyd figyelmen kívül. |
-| Nincs logó | HA 2026.x kell, a `brand` mappának ott kell lennie, újraindítás és Ctrl+F5. |
-| Nem jelenik meg a kártya | Ctrl+F5 / telefonos appban gyorsítótár ürítése; Beállítások → Rendszer → Naplók, keresés: `dabstracter`. |
+| Integration not found | Wrong folder: `manifest.json` must be at `config/custom_components/dabstracter/`. Restart required. |
+| “Charger did not respond” | Check host/IP in a browser (`http://<host>/`); try IP instead of `.local`. |
+| “Invalid token or password” | After five failures the charger locks for 30 s. Re-copy the token from the admin UI. |
+| “View-only credentials” | You entered a `viewer` password; use the token or `user` password. |
+| Limit / plan errors | Password required (Reconfigure → password). |
+| Duplicate entities | MQTT discovery is still enabled on the charger (see above). |
+| “Discovered: devse2” | Second charger, or the same one under another mDNS name. Ignore via ⋮ if it is the same device. |
+| No logo | Needs HA 2026.x, `brand/` present, restart + Ctrl+F5. |
+| Card missing | Ctrl+F5 / clear mobile app cache; Settings → System → Logs, search `dabstracter`. |
 
-Hibabejelentéshez: eszköz oldal → ⋮ → *Diagnosztika letöltése* (a token, a jelszó, az IP-címek és az SSID ki
-van takarva), és a naplósor a Rendszer → Naplók oldalról. Issue: [GitHub Issues](https://github.com/dabstracter/dabstracter-hacs/issues).
+For bug reports: device page → ⋮ → *Download diagnostics* (token, password, IPs, and SSID are redacted),
+plus the log line from Settings → System → Logs. Issues: [GitHub Issues](https://github.com/dabstracter/dabstracter-hacs/issues).
 
-## Hogyan működik
+## How it works
 
-**Használt végpontok:**
-
-| Végpont | Mikor | Jogosultság |
+| Endpoint | When | Auth |
 |---|---|---|
-| `GET /api/mini` | 5 s-onként (~0,5 kB) | token / süti |
-| `GET /api/status` | 30 s-onként és parancs után (~6 kB) | token / süti |
-| `GET /api/energy` | 60 s-onként és parancs után | token / süti |
-| `POST /api/cmd` | gombok, mód, áram | token / süti |
-| `POST /api/limit`, `POST /api/plan` | szolgáltatások | csak süti (jelszó) |
-| `POST /api/login` | első jelszavas kérésnél és 401 után egyszer | jelszó |
+| `GET /api/mini` | every 5 s (~0.5 kB) | token / cookie |
+| `GET /api/status` | every 30 s and after commands (~6 kB) | token / cookie |
+| `GET /api/energy` | every 60 s and after commands | token / cookie |
+| `POST /api/cmd` | buttons, mode, current | token / cookie |
+| `POST /api/limit`, `POST /api/plan` | services | cookie only (password) |
+| `POST /api/login` | first password request and once after 401 | password |
 
-A kártya a HA felé egy saját websocket-parancsot is használ: `dabstracter/status` (`device_id`) →
-`{ok, last_update, host}` – az utolsó sikeres lekérdezés ideje a lábléchez.
+The card also uses a Home Assistant websocket command: `dabstracter/status` (`device_id`) →
+`{ok, last_update, host}` for the footer timestamp.
 
-- Minden POST-ban `X-Requested-With: DABSTRACTER` fejléc (a firmware CSRF-védelme).
-- Az eszköz egyedi azonosítója a töltő gépneve (`wifi.host`).
-- Ha a töltő nem érhető el, az entitások „nem elérhető” állapotba kerülnek, és a HA 5 s-onként újrapróbál.
-- A zeroconf-találatot az integráció a `/api/status` válaszával ellenőrzi, mielőtt felajánlja.
+- Every POST sends `X-Requested-With: DABSTRACTER` (firmware CSRF protection).
+- Device unique id is the charger hostname (`wifi.host`).
+- If the charger is unreachable, entities go unavailable and HA retries every 5 s.
+- Zeroconf hits are verified against `/api/status` before they are offered.
 
-## Licenc
+## License
 
 [MIT](LICENSE) © 2026 DABSTRACTER
