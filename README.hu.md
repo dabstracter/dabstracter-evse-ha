@@ -8,7 +8,7 @@ telefonra tervezett Lovelace kártya is (`dabstracter-charger-card`), amit az in
 
 | | |
 |---|---|
-| Verzió | 0.2.1 ([változásnapló](CHANGELOG.md)) |
+| Verzió | 0.2.3 ([változásnapló](CHANGELOG.md)) |
 | Home Assistant | 2025.1 vagy újabb (a logó megjelenítéséhez 2026.x) |
 | Töltő firmware | 2.8.76 vagy újabb (`/api/mini`) |
 | Kapcsolat | helyi HTTP, lekérdezéses (`local_polling`) |
@@ -42,7 +42,7 @@ entitások).
 ## Telepítés
 
 ### HACS-szal
-1. HACS → ⋮ → *Custom repositories* → URL: `https://github.com/dabstracter/dabstracter`, típus: **Integration**.
+1. HACS → ⋮ → *Custom repositories* → URL: `https://github.com/dabstracter/dabstracter-evse-ha`, típus: **Integration**.
 2. Keresd meg: **DABSTRACTER EVSE** → *Download*.
 3. Indítsd újra a Home Assistantot.
 
@@ -230,7 +230,7 @@ A kártya magyarul jelenik meg, ha a HA nyelve magyar, egyébként angolul. Ninc
 | Nem jelenik meg a kártya | Ctrl+F5 / telefonos appban gyorsítótár ürítése; Beállítások → Rendszer → Naplók, keresés: `dabstracter`. |
 
 Hibabejelentéshez: eszköz oldal → ⋮ → *Diagnosztika letöltése* (a token, a jelszó, az IP-címek és az SSID ki
-van takarva), és a naplósor a Rendszer → Naplók oldalról. Issue: [GitHub Issues](https://github.com/dabstracter/dabstracter/issues).
+van takarva), és a naplósor a Rendszer → Naplók oldalról. Issue: [GitHub Issues](https://github.com/dabstracter/dabstracter-evse-ha/issues).
 
 ## Hogyan működik
 

@@ -14,12 +14,12 @@
   ],
   "config_flow": true,
   "dependencies": [],
-  "documentation": "https://github.com/dabstracter/dabstracter",
+  "documentation": "https://github.com/dabstracter/dabstracter-evse-ha",
   "integration_type": "device",
   "iot_class": "local_polling",
-  "issue_tracker": "https://github.com/dabstracter/dabstracter/issues",
+  "issue_tracker": "https://github.com/dabstracter/dabstracter-evse-ha/issues",
   "requirements": [],
-  "version": "0.2.2",
+  "version": "0.2.3",
   "zeroconf": [
     {
       "type": "_http._tcp.local.",

@@ -8,7 +8,7 @@ card (`dabstracter-charger-card`) that the integration loads automatically.
 
 | | |
 |---|---|
-| Version | 0.2.1 ([changelog](CHANGELOG.md)) |
+| Version | 0.2.3 ([changelog](CHANGELOG.md)) |
 | Home Assistant | 2025.1 or newer (logo display needs 2026.x) |
 | Charger firmware | 2.8.76 or newer (`/api/mini`) |
 | Connection | local HTTP polling (`local_polling`) |
@@ -41,7 +41,7 @@ If you enable both, every measurement appears **twice** (two devices, duplicated
 ## Installation
 
 ### With HACS
-1. HACS → ⋮ → *Custom repositories* → URL: `https://github.com/dabstracter/dabstracter`, type: **Integration**.
+1. HACS → ⋮ → *Custom repositories* → URL: `https://github.com/dabstracter/dabstracter-evse-ha`, type: **Integration**.
 2. Search for **DABSTRACTER EVSE** → *Download*.
 3. Restart Home Assistant.
 
@@ -226,7 +226,7 @@ The card is Hungarian when the HA language is Hungarian, otherwise English. No C
 | Card missing | Ctrl+F5 / clear mobile app cache; Settings → System → Logs, search `dabstracter`. |
 
 For bug reports: device page → ⋮ → *Download diagnostics* (token, password, IPs, and SSID are redacted),
-plus the log line from Settings → System → Logs. Issues: [GitHub Issues](https://github.com/dabstracter/dabstracter/issues).
+plus the log line from Settings → System → Logs. Issues: [GitHub Issues](https://github.com/dabstracter/dabstracter-evse-ha/issues).
 
 ## How it works
 
