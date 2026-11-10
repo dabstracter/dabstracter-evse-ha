@@ -8,7 +8,7 @@ telefonra tervezett Lovelace kártya is (`dabstracter-charger-card`), amit az in
 
 | | |
 |---|---|
-| Verzió | 0.2.0 ([változásnapló](CHANGELOG.md)) |
+| Verzió | 0.2.1 ([változásnapló](CHANGELOG.md)) |
 | Home Assistant | 2025.1 vagy újabb (a logó megjelenítéséhez 2026.x) |
 | Töltő firmware | 2.8.76 vagy újabb (`/api/mini`) |
 | Kapcsolat | helyi HTTP, lekérdezéses (`local_polling`) |
