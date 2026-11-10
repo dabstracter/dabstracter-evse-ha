@@ -8,7 +8,7 @@ card (`dabstracter-charger-card`) that the integration loads automatically.
 
 | | |
 |---|---|
-| Version | 0.2.3 ([changelog](CHANGELOG.md)) |
+| Version | 0.2.4 ([changelog](CHANGELOG.md)) |
 | Home Assistant | 2025.1 or newer (logo display needs 2026.x) |
 | Charger firmware | 2.8.76 or newer (`/api/mini`) |
 | Connection | local HTTP polling (`local_polling`) |

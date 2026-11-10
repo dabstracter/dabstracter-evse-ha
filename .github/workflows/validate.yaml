@@ -12,6 +12,7 @@ permissions: {}
 jobs:
   validate-hacs:
     name: HACS
+    if: github.repository == 'dabstracter/dabstracter-evse-ha'
     runs-on: ubuntu-latest
     steps:
       - name: HACS validation
@@ -21,6 +22,7 @@ jobs:
 
   validate-hassfest:
     name: Hassfest
+    if: github.repository == 'dabstracter/dabstracter-evse-ha'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7

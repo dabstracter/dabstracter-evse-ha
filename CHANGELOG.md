@@ -1,5 +1,10 @@
 # Változásnapló
 
+## 0.2.4 – Kártyaverzió és Windows szinkron (2026-11-10)
+
+- A kártya verziója 0.2.4, egyezik az integrációval. A közzétett csomag eddig 0.2.1-et írt ki.
+- A public szinkron Windowsos, nem UTF-8 konzolon (például cp1250) a másolás után nem áll le, így a commit, a push és a release is lefut.
+
 ## 0.2.3 – Repository renamed to dabstracter-evse-ha (2026-11-10)
 
 - Repository renamed to dabstracter-evse-ha ([`dabstracter/dabstracter-evse-ha`](https://github.com/dabstracter/dabstracter-evse-ha)). Documentation, issue tracker, README, and the charger card documentation URL follow the new name.
