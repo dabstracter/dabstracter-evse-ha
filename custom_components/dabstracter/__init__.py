@@ -11,12 +11,12 @@ import voluptuous as vol
 
 from homeassistant.const import CONF_HOST, Platform
 from homeassistant.core import HomeAssistant, ServiceCall, ServiceResponse, SupportsResponse, callback
-from homeassistant.exceptions import HomeAssistantError, ServiceValidationError
+from homeassistant.exceptions import ServiceValidationError
 from homeassistant.helpers import config_validation as cv, device_registry as dr
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.helpers.typing import ConfigType
 
-from .api import DabstracterApi, DabstracterCommandError, DabstracterError, DabstracterForbiddenError
+from .api import DabstracterApi
 from .const import (
     ATTR_CANCEL,
     ATTR_CLEAR,
@@ -33,6 +33,8 @@ from .const import (
     SERVICE_SET_PLAN,
 )
 from .coordinator import DabstracterConfigEntry, DabstracterCoordinator
+from .helpers import run_api
+from .mqtt_check import async_track_mqtt_duplicate
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -42,6 +44,7 @@ PLATFORMS: list[Platform] = [
     Platform.NUMBER,
     Platform.SELECT,
     Platform.SENSOR,
+    Platform.TIME,
 ]
 
 CONFIG_SCHEMA = cv.config_entry_only_config_schema(DOMAIN)
@@ -143,7 +146,7 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
             payload = {"type": call.data[ATTR_TYPE], "value": call.data[ATTR_VALUE]}
             if ATTR_START_SOC in call.data:
                 payload["startSoc"] = call.data[ATTR_START_SOC]
-        return await _run(coord, coord.api.set_limit, payload)
+        return await run_api(coord, coord.api.set_limit, payload)
 
     async def _set_plan(call: ServiceCall) -> ServiceResponse:
         coord = _coordinator_for_call(hass, call)
@@ -162,7 +165,7 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
             payload = {"type": call.data[ATTR_TYPE], "value": call.data[ATTR_VALUE], "time": hm}
             if ATTR_START_SOC in call.data:
                 payload["startSoc"] = call.data[ATTR_START_SOC]
-        return await _run(coord, coord.api.set_plan, payload)
+        return await run_api(coord, coord.api.set_plan, payload)
 
     hass.services.async_register(
         DOMAIN, SERVICE_SET_LIMIT, _set_limit, SET_LIMIT_SCHEMA, supports_response=SupportsResponse.OPTIONAL
@@ -171,28 +174,6 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
         DOMAIN, SERVICE_SET_PLAN, _set_plan, SET_PLAN_SCHEMA, supports_response=SupportsResponse.OPTIONAL
     )
     return True
-
-
-async def _run(coord: DabstracterCoordinator, func: Any, payload: dict[str, Any]) -> dict[str, Any]:
-    if not coord.api.has_password:
-        raise ServiceValidationError(translation_domain=DOMAIN, translation_key="password_required")
-    try:
-        result = await func(payload)
-    except DabstracterForbiddenError as err:
-        raise HomeAssistantError(
-            translation_domain=DOMAIN, translation_key="forbidden", translation_placeholders={"msg": str(err)}
-        ) from err
-    except DabstracterCommandError as err:
-        raise HomeAssistantError(
-            translation_domain=DOMAIN, translation_key="rejected", translation_placeholders={"msg": str(err)}
-        ) from err
-    except DabstracterError as err:
-        raise HomeAssistantError(
-            translation_domain=DOMAIN, translation_key="comm_error", translation_placeholders={"msg": str(err)}
-        ) from err
-    coord.force_full_refresh()
-    await coord.async_request_refresh()
-    return result if isinstance(result, dict) else {}
 
 
 def _coordinator_for_call(hass: HomeAssistant, call: ServiceCall) -> DabstracterCoordinator:
@@ -225,7 +206,14 @@ async def async_setup_entry(hass: HomeAssistant, entry: DabstracterConfigEntry) 
     await coordinator.async_config_entry_first_refresh()
     entry.runtime_data = coordinator
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
+    async_track_mqtt_duplicate(hass, entry)
+    entry.async_on_unload(entry.add_update_listener(_async_options_updated))
     return True
+
+
+async def _async_options_updated(hass: HomeAssistant, entry: DabstracterConfigEntry) -> None:
+    """New poll intervals: reload."""
+    await hass.config_entries.async_reload(entry.entry_id)
 
 
 async def async_unload_entry(hass: HomeAssistant, entry: DabstracterConfigEntry) -> bool:

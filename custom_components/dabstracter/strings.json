@@ -62,20 +62,36 @@
   },
   "selector": {
     "username": {
-      "options": { "user": "user", "admin": "admin" }
+      "options": {
+        "user": "user",
+        "admin": "admin"
+      }
     },
     "limit_type": {
-      "options": { "soc": "Battery %", "kwh": "kWh" }
+      "options": {
+        "soc": "Battery %",
+        "kwh": "kWh"
+      }
     },
     "plan_type": {
-      "options": { "kwh": "kWh", "km": "km", "soc": "Battery %" }
+      "options": {
+        "kwh": "kWh",
+        "km": "km",
+        "soc": "Battery %"
+      }
     }
   },
   "entity": {
     "sensor": {
-      "charging_power": { "name": "Charging power" },
-      "charging_current": { "name": "Charging current" },
-      "set_current": { "name": "Applied current" },
+      "charging_power": {
+        "name": "Charging power"
+      },
+      "charging_current": {
+        "name": "Charging current"
+      },
+      "set_current": {
+        "name": "Applied current"
+      },
       "ev_status": {
         "name": "EV status",
         "state": {
@@ -95,41 +111,118 @@
           "unknown": "Unknown"
         }
       },
-      "mode_sensor": { "name": "Mode" },
-      "session_energy": { "name": "Session energy" },
-      "total_energy": { "name": "Total energy" },
-      "today_energy": { "name": "Energy today" },
-      "month_energy": { "name": "Energy this month" },
-      "price": { "name": "Current price" },
-      "band_used": { "name": "Discount band used" },
-      "band_limit": { "name": "Discount band limit" },
-      "pv_power": { "name": "PV power" },
-      "grid_power": { "name": "Grid power" },
-      "house_power": { "name": "House power" },
-      "battery_power": { "name": "Home battery power" },
-      "battery_soc": { "name": "Home battery" },
-      "wifi_rssi": { "name": "Wi-Fi signal" }
+      "mode_sensor": {
+        "name": "Mode"
+      },
+      "session_energy": {
+        "name": "Session energy"
+      },
+      "total_energy": {
+        "name": "Total energy"
+      },
+      "today_energy": {
+        "name": "Energy today"
+      },
+      "month_energy": {
+        "name": "Energy this month"
+      },
+      "price": {
+        "name": "Current price"
+      },
+      "band_used": {
+        "name": "Discount band used"
+      },
+      "band_limit": {
+        "name": "Discount band limit"
+      },
+      "pv_power": {
+        "name": "PV power"
+      },
+      "grid_power": {
+        "name": "Grid power"
+      },
+      "house_power": {
+        "name": "House power"
+      },
+      "battery_power": {
+        "name": "Home battery power"
+      },
+      "battery_soc": {
+        "name": "Home battery"
+      },
+      "wifi_rssi": {
+        "name": "Wi-Fi signal"
+      },
+      "session_duration": {
+        "name": "Session duration"
+      },
+      "session_cost": {
+        "name": "Session cost"
+      }
     },
     "binary_sensor": {
-      "charging": { "name": "Charging" },
-      "car_connected": { "name": "Car connected" },
-      "limit_active": { "name": "Charging limit active" },
-      "plan_active": { "name": "Target-time charging active" },
-      "fail_safe": { "name": "Fail-safe / safety stop" }
+      "charging": {
+        "name": "Charging"
+      },
+      "car_connected": {
+        "name": "Car connected"
+      },
+      "limit_active": {
+        "name": "Charging limit active"
+      },
+      "plan_active": {
+        "name": "Target-time charging active"
+      },
+      "fail_safe": {
+        "name": "Fail-safe / safety stop"
+      }
     },
     "select": {
       "mode": {
         "name": "Mode",
-        "state": { "man": "MAN", "pv": "PV", "pv_eco": "PV ECO", "fast": "FAST" }
+        "state": {
+          "man": "MAN",
+          "pv": "PV",
+          "pv_eco": "PV ECO",
+          "fast": "FAST"
+        }
       }
     },
     "number": {
-      "max_current": { "name": "Max current" }
+      "max_current": {
+        "name": "Max current"
+      },
+      "limit_soc": {
+        "name": "Charging limit (battery %)"
+      },
+      "limit_kwh": {
+        "name": "Charging limit (kWh)"
+      },
+      "plan_energy": {
+        "name": "Target-time charging energy"
+      }
     },
     "button": {
-      "start": { "name": "Start" },
-      "stop": { "name": "Stop" },
-      "cpwake": { "name": "Wake car (CP)" }
+      "start": {
+        "name": "Start"
+      },
+      "stop": {
+        "name": "Stop"
+      },
+      "cpwake": {
+        "name": "Wake car (CP)"
+      },
+      "plan_start": {
+        "name": "Start target-time charging"
+      },
+      "plan_cancel": {
+        "name": "Cancel target-time charging"
+      }
+    },
+    "time": {
+      "plan_time": {
+        "name": "Target-time charging ready by"
+      }
     }
   },
   "services": {
@@ -137,36 +230,111 @@
       "name": "Set charging limit",
       "description": "Stop charging after a battery % or kWh, in any mode. Needs the password.",
       "fields": {
-        "device_id": { "name": "Charger", "description": "Optional when only one charger is set up." },
-        "clear": { "name": "Clear", "description": "Remove the limit." },
-        "type": { "name": "Type", "description": "Battery % or kWh." },
-        "value": { "name": "Value", "description": "Target % or kWh." },
-        "start_soc": { "name": "Battery now", "description": "Battery % of the car now (for a % limit without MQTT SOC)." }
+        "device_id": {
+          "name": "Charger",
+          "description": "Optional when only one charger is set up."
+        },
+        "clear": {
+          "name": "Clear",
+          "description": "Remove the limit."
+        },
+        "type": {
+          "name": "Type",
+          "description": "Battery % or kWh."
+        },
+        "value": {
+          "name": "Value",
+          "description": "Target % or kWh."
+        },
+        "start_soc": {
+          "name": "Battery now",
+          "description": "Battery % of the car now (for a % limit without MQTT SOC)."
+        }
       }
     },
     "set_plan": {
       "name": "Set target-time charging",
       "description": "Have kWh / km / battery % ready by a time. Needs the password.",
       "fields": {
-        "device_id": { "name": "Charger", "description": "Optional when only one charger is set up." },
-        "cancel": { "name": "Cancel", "description": "Cancel the plan." },
-        "type": { "name": "Type", "description": "kWh, km or battery %." },
-        "value": { "name": "Value", "description": "Amount to charge." },
-        "time": { "name": "Ready by", "description": "HH:MM" },
-        "start_soc": { "name": "Battery now", "description": "Battery % of the car now." }
+        "device_id": {
+          "name": "Charger",
+          "description": "Optional when only one charger is set up."
+        },
+        "cancel": {
+          "name": "Cancel",
+          "description": "Cancel the plan."
+        },
+        "type": {
+          "name": "Type",
+          "description": "kWh, km or battery %."
+        },
+        "value": {
+          "name": "Value",
+          "description": "Amount to charge."
+        },
+        "time": {
+          "name": "Ready by",
+          "description": "HH:MM"
+        },
+        "start_soc": {
+          "name": "Battery now",
+          "description": "Battery % of the car now."
+        }
       }
     }
   },
   "exceptions": {
-    "password_required": { "message": "This needs the user or admin password in the integration settings (the display token is not enough)." },
-    "value_required": { "message": "Give a value, or set clear." },
-    "value_time_required": { "message": "Give a value and a time, or set cancel." },
-    "bad_time": { "message": "The time must be HH:MM." },
-    "unknown_device": { "message": "Unknown DABSTRACTER device." },
-    "device_required": { "message": "Several chargers are set up: choose one." },
-    "forbidden": { "message": "The charger refused: {msg}" },
-    "rejected": { "message": "The charger rejected the request: {msg}" },
-    "comm_error": { "message": "Could not reach the charger: {msg}" },
-    "command_failed": { "message": "The charger could not execute {cmd}." }
+    "password_required": {
+      "message": "The charger refused the display token for this (firmware older than 2.8.110). Add the user or admin password in the integration settings (Reconfigure)."
+    },
+    "value_required": {
+      "message": "Give a value, or set clear."
+    },
+    "value_time_required": {
+      "message": "Give a value and a time, or set cancel."
+    },
+    "bad_time": {
+      "message": "The time must be HH:MM."
+    },
+    "unknown_device": {
+      "message": "Unknown DABSTRACTER device."
+    },
+    "device_required": {
+      "message": "Several chargers are set up: choose one."
+    },
+    "forbidden": {
+      "message": "The charger refused: {msg}"
+    },
+    "rejected": {
+      "message": "The charger rejected the request: {msg}"
+    },
+    "comm_error": {
+      "message": "Could not reach the charger: {msg}"
+    },
+    "command_failed": {
+      "message": "The charger could not execute {cmd}."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Polling",
+        "description": "How often Home Assistant asks the charger. Shorter is more up to date but loads the charger's Wi-Fi more.",
+        "data": {
+          "scan_interval": "Live values (/api/mini)",
+          "status_interval": "Status, limit, target time (/api/status)",
+          "energy_interval": "Energy history (/api/energy)"
+        },
+        "data_description": {
+          "energy_interval": "With firmware 2.8.110+ today / month kWh come with the live values, then this is used five times less often."
+        }
+      }
+    }
+  },
+  "issues": {
+    "mqtt_duplicate": {
+      "title": "DABSTRACTER EVSE is also added through MQTT",
+      "description": "The charger {name} is also in Home Assistant through MQTT discovery (device: {mqtt_name}), so every value appears twice.\n\nUse one of them: either turn off **HA discovery** on the charger (Config → MQTT) and delete the MQTT device in Home Assistant (Settings → Devices → {mqtt_name} → ⋮ → Delete), or remove this integration. This warning disappears by itself when the MQTT device is gone."
+    }
   }
 }

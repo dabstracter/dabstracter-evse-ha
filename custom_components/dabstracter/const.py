@@ -24,6 +24,11 @@ ENERGY_INTERVAL: Final = timedelta(seconds=60)
 
 REQUEST_TIMEOUT: Final = 8
 
+# options flow (seconds)
+CONF_SCAN_INTERVAL: Final = "scan_interval"
+CONF_STATUS_INTERVAL: Final = "status_interval"
+CONF_ENERGY_INTERVAL: Final = "energy_interval"
+
 MODE_OPTIONS: Final = ("man", "pv", "pv_eco", "fast")  # select option keys, index = firmware mode
 
 # ev.status codes (firmware 14_vezerles.ino statusInfo)

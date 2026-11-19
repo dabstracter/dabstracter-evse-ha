@@ -8,7 +8,7 @@ telefonra tervezett Lovelace kártya is (`dabstracter-charger-card`), amit az in
 
 | | |
 |---|---|
-| Verzió | 0.2.4 ([változásnapló](CHANGELOG.md)) |
+| Verzió | 0.3.0 ([változásnapló](CHANGELOG.md)) |
 | Home Assistant | 2025.1 vagy újabb (a logó megjelenítéséhez 2026.x) |
 | Töltő firmware | 2.8.76 vagy újabb (`/api/mini`) |
 | Kapcsolat | helyi HTTP, lekérdezéses (`local_polling`) |
@@ -61,8 +61,8 @@ Frissítésnél ugyanígy: a mappa felülírása, majd újraindítás.
 ### 1. Belépési adat a töltőből
 - **Kijelző-token:** a töltő webes felületén, **admin**ként: Config → Kijelző. Ha még nincs, ott generálható.
   Elég az állapothoz, START / STOP-hoz, üzemmódhoz és áramhoz.
-- **Jelszó:** a `user` (vagy `admin`) jelszava. **A töltési limithez és a célidős töltéshez kell**, mert
-  azokat a firmware tokennel nem engedi.
+- **Jelszó:** a `user` (vagy `admin`) jelszava. A töltési limithez és a célidős töltéshez **csak 2.8.110-nél
+  régebbi firmware-en kell**; 2.8.110-től ezekhez is elég a kijelző-token.
 - Megadhatod mindkettőt: ilyenkor a lekérdezés a tokennel megy, a limit / célidő a jelszóval.
 - Ha a töltőn nincs admin jelszó (nyitott felület), a mezők üresen hagyhatók.
 - A `viewer` jelszót az integráció elutasítja: azzal nem lehet vezérelni.
@@ -87,7 +87,7 @@ adatot (pl. jelszócsere vagy új token), a HA magától kéri az újra-bejelent
 
 ## Entitások
 
-Egy eszköz, 28 entitás. Az entitás-azonosítók a HA nyelvén generálódnak (pl. magyar HA-ban
+Egy eszköz, 36 entitás. Az entitás-azonosítók a HA nyelvén generálódnak (pl. magyar HA-ban
 `sensor.dabstracter_devse_toltesi_teljesitmeny`).
 
 ### Szenzorok
@@ -100,9 +100,11 @@ Egy eszköz, 28 entitás. Az entitás-azonosítók a HA nyelvén generálódnak 
 | EV állapot | `ev_status` | – | `/api/mini` `st` | lista: kész, csatlakoztatva, töltés, leállítva, hiba… attribútum: `code`, `text`, `full` |
 | Üzemmód | `mode_sensor` | – | `/api/mini` `mode` | alapból rejtett (a választó helyett automatizmusokhoz) |
 | Munkamenet energia | `session_energy` | kWh | `/api/mini` `sessWh` | attribútum: `duration_s`, `cost` (Ft) |
+| Munkamenet időtartam | `session_duration` | perc | `/api/mini` `sessS` | |
+| Munkamenet költség | `session_cost` | HUF | `/api/mini` `sessFt` | csak bekapcsolt költségszámításnál |
 | Összes energia | `total_energy` | kWh | `/api/energy` `total` | Energia-irányítópultra tehető; attribútum: napelemes / akkus rész |
-| Mai energia | `today_energy` | kWh | `/api/energy` `days` | |
-| Havi energia | `month_energy` | kWh | `/api/energy` `months` | |
+| Mai energia | `today_energy` | kWh | `/api/mini` `todayWh` (2.8.110+), különben `/api/energy` `days` | |
+| Havi energia | `month_energy` | kWh | `/api/mini` `monthWh` (2.8.110+), különben `/api/energy` `months` | |
 | Aktuális ár | `price` | HUF/kWh | `/api/energy` `cost.price` | csak bekapcsolt költségszámításnál; attribútum: `tier`, `low`, `high` |
 | Kedvezményes sáv felhasznált | `band_used` | kWh | `cost.usedWh` | attribútum: `percent`, `tier`, `period`, `monthly`, `partial` |
 | Kedvezményes sáv határa | `band_limit` | kWh | `cost.limitWh` | |
@@ -129,11 +131,30 @@ Ami a töltőn nincs bekötve (pl. nincs P1 mérő vagy inverter), az „ismeret
 | button | Start | `start` | a firmware-ben MAN módba vált, kézi árammal indít (mint a helyi gomb) |
 | button | Stop | `stop` | |
 | button | Autó ébresztése (CP) | `cpwake` | CP-relés ébresztés, ha az autó alszik |
+| number | Töltési limit (akku %) | `limit_soc` | 0 = nincs limit; különben ennél az akku %-nál leáll (bármely módban) |
+| number | Töltési limit (kWh) | `limit_kwh` | 0 = nincs limit; különben ennyi energia után leáll. A töltő egy limitet tart: a másik típus 0-t mutat |
+| number | Célidős töltés energia | `plan_energy` | a következő terv kWh-ja (megjegyzi); aktív tervnél annak értéke |
+| time | Célidős töltés kész ekkorra | `plan_time` | a következő terv határideje (megjegyzi, alapból 07:00) |
+| button | Célidős töltés indítása | `plan_start` | elküldi: *energia* legyen kész *ekkorra* |
+| button | Célidős töltés megszakítása | `plan_cancel` | |
+
+## Beállítások (lekérdezési ütem)
+
+Integráció → ⚙ *Konfigurálás*: milyen gyakran kérdezze a Home Assistant a töltőt.
+
+| Beállítás | Alapérték | Tartomány |
+|---|---|---|
+| Élő értékek (`/api/mini`) | 5 s | 2–60 s |
+| Állapot, limit, célidő (`/api/status`) | 30 s | 10–600 s |
+| Energia-előzmények (`/api/energy`) | 60 s | 30–3600 s; 2.8.110+ firmware-rel ötször ritkábban |
+
+Mentés után az integráció újratöltődik.
 
 ## Szolgáltatások
 
-Mindkét szolgáltatás **jelszót igényel** (lásd [Beállítás](#beállítás)), és visszaadja a töltő válaszát
-(`response_variable`). Több töltőnél add meg a `device_id`-t is.
+Mindkét szolgáltatáshoz 2.8.110-nél régebbi firmware-en jelszó kell (lásd [Beállítás](#beállítás)), 2.8.110-től
+elég a kijelző-token. Visszaadják a töltő válaszát (`response_variable`). Több töltőnél add meg a `device_id`-t is.
+Ugyanez entitásként is elérhető (limit számok, célidő szám / idő / gombok).
 
 ```yaml
 # 80 %-nál álljon le (a mostani akku 45 %)
@@ -223,8 +244,8 @@ A kártya magyarul jelenik meg, ha a HA nyelve magyar, egyébként angolul. Ninc
 | „A töltő nem válaszolt” | Cím / IP ellenőrzése böngészőben (`http://<cím>/`); `.local` név helyett próbáld az IP-t. |
 | „Hibás token vagy jelszó” | Öt hibás próbálkozás után a töltő 30 mp-re zárol. Tokennél admin felületről másold újra. |
 | „Ezzel csak megtekinteni lehet” | `viewer` jelszót adtál meg; használd a tokent vagy a `user` jelszót. |
-| A limit / célidő hibát ad | Jelszó kell hozzá (Újrakonfigurálás → jelszó). |
-| Duplikált entitások | Az MQTT discovery is be van kapcsolva a töltőn (lásd fent). |
+| A limit / célidő hibát ad | 2.8.110-nél régebbi firmware: jelszó kell (Újrakonfigurálás → jelszó), vagy frissítsd a firmware-t. |
+| Duplikált entitások | Az MQTT discovery is be van kapcsolva a töltőn (lásd fent). Amíg az MQTT-s eszköz létezik, a HA a Beállítások → Javítások alatt is figyelmeztet. |
 | „Felfedezve: devse2” | Vagy egy második töltő, vagy ugyanaz a töltő mDNS-névütközés miatt más néven. Ha ugyanaz, a ⋮ menüben hagyd figyelmen kívül. |
 | Nincs logó | HA 2026.x kell, a `brand` mappának ott kell lennie, újraindítás és Ctrl+F5. |
 | Nem jelenik meg a kártya | Ctrl+F5 / telefonos appban gyorsítótár ürítése; Beállítások → Rendszer → Naplók, keresés: `dabstracter`. |
@@ -242,14 +263,14 @@ van takarva), és a naplósor a Rendszer → Naplók oldalról. Issue: [GitHub I
 | `GET /api/status` | 30 s-onként és parancs után (~6 kB) | token / süti |
 | `GET /api/energy` | 60 s-onként és parancs után | token / süti |
 | `POST /api/cmd` | gombok, mód, áram | token / süti |
-| `POST /api/limit`, `POST /api/plan` | szolgáltatások | csak süti (jelszó) |
+| `POST /api/limit`, `POST /api/plan` | szolgáltatások, limit / célidő entitások | süti (jelszó); 2.8.110-től token is |
 | `POST /api/login` | első jelszavas kérésnél és 401 után egyszer | jelszó |
 
 A kártya a HA felé egy saját websocket-parancsot is használ: `dabstracter/status` (`device_id`) →
 `{ok, last_update, host}` – az utolsó sikeres lekérdezés ideje a lábléchez.
 
 - Minden POST-ban `X-Requested-With: DABSTRACTER` fejléc (a firmware CSRF-védelme).
-- Az eszköz egyedi azonosítója a töltő gépneve (`wifi.host`).
+- Az eszköz egyedi azonosítója a töltő gépneve (`wifi.host`). 2.8.110-es firmware-től a MAC-cím is az eszközhöz kerül.
 - Ha a töltő nem érhető el, az entitások „nem elérhető” állapotba kerülnek, és a HA 5 s-onként újrapróbál.
 - A zeroconf-találatot az integráció a `/api/status` válaszával ellenőrzi, mielőtt felajánlja.
 

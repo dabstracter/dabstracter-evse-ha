@@ -19,6 +19,7 @@ from homeassistant.const import (
     UnitOfElectricCurrent,
     UnitOfEnergy,
     UnitOfPower,
+    UnitOfTime,
 )
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
@@ -124,6 +125,25 @@ SENSORS: tuple[DabSensorDescription, ...] = (
         suggested_display_precision=2,
         value_fn=_session_kwh,
         attrs_fn=lambda d: {"duration_s": d.mini.get("sessS"), "cost": d.mini.get("sessFt")},
+    ),
+    DabSensorDescription(
+        key="session_duration",
+        translation_key="session_duration",
+        device_class=SensorDeviceClass.DURATION,
+        native_unit_of_measurement=UnitOfTime.SECONDS,
+        suggested_unit_of_measurement=UnitOfTime.MINUTES,
+        suggested_display_precision=0,
+        value_fn=lambda d: _num(d.mini.get("sessS")),
+    ),
+    DabSensorDescription(
+        key="session_cost",
+        translation_key="session_cost",
+        device_class=SensorDeviceClass.MONETARY,
+        state_class=SensorStateClass.TOTAL,
+        native_unit_of_measurement="HUF",
+        suggested_display_precision=0,
+        available_fn=lambda d: "sessFt" in d.mini,  # only with cost calculation on in the charger
+        value_fn=lambda d: _num(d.mini.get("sessFt")),
     ),
     DabSensorDescription(
         key="total_energy",

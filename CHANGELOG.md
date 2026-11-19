@@ -1,5 +1,21 @@
 # Változásnapló
 
+## 0.3.0 – Limit és célidő entitásként, MQTT-figyelmeztetés, beállítható lekérdezés (2026-11-19)
+
+- **Töltési limit entitásként:** „Töltési limit (akku %)” és „Töltési limit (kWh)” szám; 0 = nincs limit.
+- **Célidős töltés entitásként:** energia (kWh) és „kész ekkorra” idő (megjegyzi), „Célidős töltés indítása” és
+  „megszakítása” gomb. Így automatizmusból és a HA saját felületéről is állítható, szolgáltatáshívás nélkül.
+- **Munkamenet időtartam** és **munkamenet költség** saját szenzorként (grafikon, statisztika).
+- **Figyelmeztetés a Javítások alatt**, ha a töltő MQTT discovery-vel is fel van véve (duplikált entitások);
+  magától eltűnik, ha az MQTT-s eszköz megszűnt.
+- **Beállítható lekérdezési ütem** (integráció → Konfigurálás): élő értékek, állapot, energia-előzmények.
+- **2.8.110-es firmware támogatása** (régebbivel is működik): a limithez és a célidőhöz elég a kijelző-token;
+  a mai / havi kWh és a sáv adatai az 5 mp-es élő értékekkel jönnek, a nagy `/api/energy` ötször ritkábban kell;
+  a MAC-cím az eszközhöz kerül.
+- Régebbi firmware-en, csak tokennel, a limit / célidő érthető hibát ad („jelszó kell”).
+- Fejlesztés: a privát repóban minden pushnál lefutnak a tesztek, és ellenőrzés figyeli, hogy a lefordított kártya
+  egyezik-e a forrással.
+
 ## 0.2.4 – Kártyaverzió és Windows szinkron (2026-11-10)
 
 - A kártya verziója 0.2.4, egyezik az integrációval. A közzétett csomag eddig 0.2.1-et írt ki.

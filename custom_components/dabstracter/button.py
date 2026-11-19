@@ -1,4 +1,4 @@
-"""START / STOP / CP wake buttons."""
+"""Buttons: START / STOP / CP wake, start / cancel target-time charging."""
 
 from __future__ import annotations
 
@@ -8,7 +8,7 @@ from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 
 from .coordinator import DabstracterConfigEntry
 from .entity import DabstracterEntity
-from .helpers import run_command
+from .helpers import run_api, run_command
 
 PARALLEL_UPDATES = 1
 
@@ -16,6 +16,8 @@ BUTTONS: tuple[ButtonEntityDescription, ...] = (
     ButtonEntityDescription(key="start", translation_key="start"),
     ButtonEntityDescription(key="stop", translation_key="stop"),
     ButtonEntityDescription(key="cpwake", translation_key="cpwake"),
+    ButtonEntityDescription(key="plan_start", translation_key="plan_start"),
+    ButtonEntityDescription(key="plan_cancel", translation_key="plan_cancel"),
 )
 
 
@@ -29,7 +31,7 @@ async def async_setup_entry(
 
 
 class DabButton(DabstracterEntity, ButtonEntity):
-    """One /api/cmd command."""
+    """One /api/cmd command, or a target-time charging action."""
 
     def __init__(self, coordinator, description: ButtonEntityDescription) -> None:
         """Init."""
@@ -38,4 +40,12 @@ class DabButton(DabstracterEntity, ButtonEntity):
 
     async def async_press(self) -> None:
         """Send the command."""
-        await run_command(self.coordinator, self.entity_description.key)
+        key = self.entity_description.key
+        coord = self.coordinator
+        if key == "plan_start":
+            payload = {"type": "kwh", "value": coord.plan_kwh, "time": coord.plan_time.strftime("%H:%M")}
+            await run_api(coord, coord.api.set_plan, payload)
+        elif key == "plan_cancel":
+            await run_api(coord, coord.api.set_plan, {"cancel": True})
+        else:
+            await run_command(coord, key)

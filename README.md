@@ -8,7 +8,7 @@ card (`dabstracter-charger-card`) that the integration loads automatically.
 
 | | |
 |---|---|
-| Version | 0.2.4 ([changelog](CHANGELOG.md)) |
+| Version | 0.3.0 ([changelog](CHANGELOG.md)) |
 | Home Assistant | 2025.1 or newer (logo display needs 2026.x) |
 | Charger firmware | 2.8.76 or newer (`/api/mini`) |
 | Connection | local HTTP polling (`local_polling`) |
@@ -59,8 +59,8 @@ To update: overwrite the folder the same way, then restart.
 ### 1. Credentials from the charger
 - **Display token:** on the charger web UI as **admin**: Config → Display. Generate one if needed.
   Enough for status, START / STOP, mode, and current.
-- **Password:** `user` or `admin` password. **Required for charge limit and deadline plan** — the firmware
-  does not allow those with the display token alone.
+- **Password:** `user` or `admin` password. Charge limit and deadline plan need it **only with firmware
+  older than 2.8.110**; from 2.8.110 the display token is enough for those too.
 - You can provide both: polling uses the token; limit / plan use the password.
 - If the charger has no admin password (open UI), leave the fields empty.
 - A `viewer` password is rejected: it cannot control the charger.
@@ -84,7 +84,7 @@ Later: integration ⋮ menu → *Reconfigure* (host, token, password). If the ch
 
 ## Entities
 
-One device, 28 entities. Entity IDs follow the Home Assistant language
+One device, 36 entities. Entity IDs follow the Home Assistant language
 (e.g. on a Hungarian HA: `sensor.dabstracter_devse_toltesi_teljesitmeny`).
 
 ### Sensors
@@ -97,9 +97,11 @@ One device, 28 entities. Entity IDs follow the Home Assistant language
 | EV status | `ev_status` | – | `/api/mini` `st` | ready, connected, charging, stopped, error… attrs: `code`, `text`, `full` |
 | Mode | `mode_sensor` | – | `/api/mini` `mode` | hidden by default (use the select for UI; this is for automations) |
 | Session energy | `session_energy` | kWh | `/api/mini` `sessWh` | attrs: `duration_s`, `cost` |
+| Session duration | `session_duration` | min | `/api/mini` `sessS` | |
+| Session cost | `session_cost` | HUF | `/api/mini` `sessFt` | only if cost calculation is enabled on the charger |
 | Total energy | `total_energy` | kWh | `/api/energy` `total` | Energy dashboard compatible; attrs: PV / battery share |
-| Today energy | `today_energy` | kWh | `/api/energy` `days` | |
-| Month energy | `month_energy` | kWh | `/api/energy` `months` | |
+| Today energy | `today_energy` | kWh | `/api/mini` `todayWh` (2.8.110+), else `/api/energy` `days` | |
+| Month energy | `month_energy` | kWh | `/api/mini` `monthWh` (2.8.110+), else `/api/energy` `months` | |
 | Current price | `price` | HUF/kWh | `/api/energy` `cost.price` | only if cost calculation is enabled; attrs: `tier`, `low`, `high` |
 | Discount band used | `band_used` | kWh | `cost.usedWh` | attrs: `percent`, `tier`, `period`, `monthly`, `partial` |
 | Discount band limit | `band_limit` | kWh | `cost.limitWh` | |
@@ -126,11 +128,30 @@ Inputs that are not wired on the charger (e.g. no P1 meter or inverter) stay “
 | button | Start | `start` | switches to MAN and starts with manual current |
 | button | Stop | `stop` | |
 | button | Wake car (CP) | `cpwake` | CP-relay wake if the car is asleep |
+| number | Charging limit (battery %) | `limit_soc` | 0 = no limit; otherwise stops at this battery % (in any mode) |
+| number | Charging limit (kWh) | `limit_kwh` | 0 = no limit; otherwise stops after this much energy. The charger keeps one limit: the other type shows 0 |
+| number | Target-time charging energy | `plan_energy` | kWh for the next plan (remembered); shows the active plan's value |
+| time | Target-time charging ready by | `plan_time` | ready-by time for the next plan (remembered, default 07:00) |
+| button | Start target-time charging | `plan_start` | sends *energy* by *ready by* |
+| button | Cancel target-time charging | `plan_cancel` | |
+
+## Options
+
+Integration → ⚙ *Configure*: how often Home Assistant polls the charger.
+
+| Option | Default | Range |
+|---|---|---|
+| Live values (`/api/mini`) | 5 s | 2–60 s |
+| Status, limit, target time (`/api/status`) | 30 s | 10–600 s |
+| Energy history (`/api/energy`) | 60 s | 30–3600 s; with firmware 2.8.110+ used five times less often |
+
+The integration reloads after saving.
 
 ## Services
 
-Both services **require a password** (see [Setup](#setup)) and return the charger response
-(`response_variable`). With multiple chargers, pass `device_id`.
+Both services need the password with firmware older than 2.8.110 (see [Setup](#setup)); from 2.8.110 the
+display token is enough. They return the charger response (`response_variable`). With multiple chargers,
+pass `device_id`. The same actions are also available as entities (limit numbers, plan number / time / buttons).
 
 ```yaml
 # Stop at 80 % (current battery 45 %)
@@ -219,8 +240,8 @@ The card is Hungarian when the HA language is Hungarian, otherwise English. No C
 | “Charger did not respond” | Check host/IP in a browser (`http://<host>/`); try IP instead of `.local`. |
 | “Invalid token or password” | After five failures the charger locks for 30 s. Re-copy the token from the admin UI. |
 | “View-only credentials” | You entered a `viewer` password; use the token or `user` password. |
-| Limit / plan errors | Password required (Reconfigure → password). |
-| Duplicate entities | MQTT discovery is still enabled on the charger (see above). |
+| Limit / plan errors | Firmware older than 2.8.110: password required (Reconfigure → password), or update the firmware. |
+| Duplicate entities | MQTT discovery is still enabled on the charger (see above). Home Assistant also shows a warning under Settings → Repairs while the MQTT device exists. |
 | “Discovered: devse2” | Second charger, or the same one under another mDNS name. Ignore via ⋮ if it is the same device. |
 | No logo | Needs HA 2026.x, `brand/` present, restart + Ctrl+F5. |
 | Card missing | Ctrl+F5 / clear mobile app cache; Settings → System → Logs, search `dabstracter`. |
@@ -236,14 +257,14 @@ plus the log line from Settings → System → Logs. Issues: [GitHub Issues](htt
 | `GET /api/status` | every 30 s and after commands (~6 kB) | token / cookie |
 | `GET /api/energy` | every 60 s and after commands | token / cookie |
 | `POST /api/cmd` | buttons, mode, current | token / cookie |
-| `POST /api/limit`, `POST /api/plan` | services | cookie only (password) |
+| `POST /api/limit`, `POST /api/plan` | services, limit / plan entities | cookie (password); token from firmware 2.8.110 |
 | `POST /api/login` | first password request and once after 401 | password |
 
 The card also uses a Home Assistant websocket command: `dabstracter/status` (`device_id`) →
 `{ok, last_update, host}` for the footer timestamp.
 
 - Every POST sends `X-Requested-With: DABSTRACTER` (firmware CSRF protection).
-- Device unique id is the charger hostname (`wifi.host`).
+- Device unique id is the charger hostname (`wifi.host`). From firmware 2.8.110 the MAC address is also attached to the device.
 - If the charger is unreachable, entities go unavailable and HA retries every 5 s.
 - Zeroconf hits are verified against `/api/status` before they are offered.
 

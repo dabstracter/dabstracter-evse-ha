@@ -1,35 +1,99 @@
 {
   "entity": {
     "sensor": {
-      "ev_status": { "default": "mdi:ev-station" },
-      "mode_sensor": { "default": "mdi:tune-variant" },
-      "price": { "default": "mdi:cash" },
-      "band_used": { "default": "mdi:gauge" },
-      "band_limit": { "default": "mdi:gauge-full" },
-      "pv_power": { "default": "mdi:solar-power" },
-      "grid_power": { "default": "mdi:transmission-tower" },
-      "house_power": { "default": "mdi:home-lightning-bolt" },
-      "battery_power": { "default": "mdi:home-battery" },
-      "charging_power": { "default": "mdi:ev-plug-type2" }
+      "ev_status": {
+        "default": "mdi:ev-station"
+      },
+      "mode_sensor": {
+        "default": "mdi:tune-variant"
+      },
+      "price": {
+        "default": "mdi:cash"
+      },
+      "band_used": {
+        "default": "mdi:gauge"
+      },
+      "band_limit": {
+        "default": "mdi:gauge-full"
+      },
+      "pv_power": {
+        "default": "mdi:solar-power"
+      },
+      "grid_power": {
+        "default": "mdi:transmission-tower"
+      },
+      "house_power": {
+        "default": "mdi:home-lightning-bolt"
+      },
+      "battery_power": {
+        "default": "mdi:home-battery"
+      },
+      "charging_power": {
+        "default": "mdi:ev-plug-type2"
+      },
+      "session_duration": {
+        "default": "mdi:timer-outline"
+      },
+      "session_cost": {
+        "default": "mdi:cash-clock"
+      }
     },
     "binary_sensor": {
-      "limit_active": { "default": "mdi:battery-lock" },
-      "plan_active": { "default": "mdi:clock-end" }
+      "limit_active": {
+        "default": "mdi:battery-lock"
+      },
+      "plan_active": {
+        "default": "mdi:clock-end"
+      }
     },
     "select": {
-      "mode": { "default": "mdi:tune-variant" }
+      "mode": {
+        "default": "mdi:tune-variant"
+      }
     },
     "number": {
-      "max_current": { "default": "mdi:current-ac" }
+      "max_current": {
+        "default": "mdi:current-ac"
+      },
+      "limit_soc": {
+        "default": "mdi:battery-lock"
+      },
+      "limit_kwh": {
+        "default": "mdi:battery-lock"
+      },
+      "plan_energy": {
+        "default": "mdi:lightning-bolt"
+      }
     },
     "button": {
-      "start": { "default": "mdi:play" },
-      "stop": { "default": "mdi:stop" },
-      "cpwake": { "default": "mdi:alarm-light-outline" }
+      "start": {
+        "default": "mdi:play"
+      },
+      "stop": {
+        "default": "mdi:stop"
+      },
+      "cpwake": {
+        "default": "mdi:alarm-light-outline"
+      },
+      "plan_start": {
+        "default": "mdi:clock-start"
+      },
+      "plan_cancel": {
+        "default": "mdi:clock-remove-outline"
+      }
+    },
+    "time": {
+      "plan_time": {
+        "default": "mdi:clock-end"
+      }
     }
   },
   "services": {
-    "set_limit": { "service": "mdi:battery-lock" },
-    "set_plan": { "service": "mdi:clock-end" }
+    "set_limit": {
+      "service": "mdi:battery-lock"
+    },
+    "set_plan": {
+      "service": "mdi:clock-end"
+    }
   }
 }

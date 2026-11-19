@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import datetime, time, timedelta
 import logging
 from typing import Any
 
@@ -14,7 +14,15 @@ from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, Upda
 from homeassistant.util import dt as dt_util
 
 from .api import DabstracterApi, DabstracterAuthError, DabstracterError
-from .const import DOMAIN, ENERGY_INTERVAL, SCAN_INTERVAL, STATUS_INTERVAL
+from .const import (
+    CONF_ENERGY_INTERVAL,
+    CONF_SCAN_INTERVAL,
+    CONF_STATUS_INTERVAL,
+    DOMAIN,
+    ENERGY_INTERVAL,
+    SCAN_INTERVAL,
+    STATUS_INTERVAL,
+)
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -50,19 +58,39 @@ class DabstracterData:
         return 0.0
 
     @property
+    def mini_has_energy(self) -> bool:
+        """Firmware 2.8.110+ also sends today / month kWh in /api/mini."""
+        return "todayWh" in self.mini
+
+    @property
     def today_wh(self) -> float | None:
-        """Energy charged today (Wh)."""
+        """Energy charged today (Wh): /api/mini (5 s) when available, else /api/energy."""
+        if self.mini_has_energy:
+            return float(self.mini["todayWh"])
         return self._bucket_wh("days", "today")
 
     @property
     def month_wh(self) -> float | None:
         """Energy charged this month (Wh)."""
+        if "monthWh" in self.mini:
+            return float(self.mini["monthWh"])
         return self._bucket_wh("months", "month")
 
     @property
     def cost(self) -> dict[str, Any]:
-        """energy.cost block (usedWh, limitWh, tier, price, on ...)."""
-        return self.energy.get("cost") or {}
+        """energy.cost block (usedWh, limitWh, tier, price, on ...), fresher /api/mini values on top."""
+        cost = dict(self.energy.get("cost") or {})
+        if "bandUsedWh" in self.mini:
+            cost.update(on=True, usedWh=self.mini["bandUsedWh"], limitWh=self.mini.get("bandLimitWh"))
+            for key in ("tier", "price"):
+                if key in self.mini:
+                    cost[key] = self.mini[key]
+        return cost
+
+    @property
+    def mac(self) -> str | None:
+        """MAC address (firmware 2.8.110+)."""
+        return (self.status.get("wifi") or {}).get("mac") or self.mini.get("mac")
 
 
 class DabstracterCoordinator(DataUpdateCoordinator[DabstracterData]):
@@ -79,13 +107,18 @@ class DabstracterCoordinator(DataUpdateCoordinator[DabstracterData]):
             _LOGGER,
             config_entry=entry,
             name=f"{DOMAIN} {api.host}",
-            update_interval=SCAN_INTERVAL,
+            update_interval=timedelta(seconds=entry.options.get(CONF_SCAN_INTERVAL, SCAN_INTERVAL.seconds)),
         )
+        self._status_every = timedelta(seconds=entry.options.get(CONF_STATUS_INTERVAL, STATUS_INTERVAL.seconds))
+        self._energy_every = timedelta(seconds=entry.options.get(CONF_ENERGY_INTERVAL, ENERGY_INTERVAL.seconds))
         self.api = api
         self._status_at: datetime | None = None
         self._energy_at: datetime | None = None
         self._force_slow = False
         self.last_ok: datetime | None = None  # time of the last successful poll (card footer)
+        # target-time charging draft, set by the plan number / time entities (restored on restart)
+        self.plan_kwh: float = 20.0
+        self.plan_time: time = time(7, 0)
 
     def force_full_refresh(self) -> None:
         """Fetch /api/status and /api/energy on the next poll too (after a command)."""
@@ -99,10 +132,12 @@ class DabstracterCoordinator(DataUpdateCoordinator[DabstracterData]):
         self._force_slow = False
         try:
             data.mini = await self.api.get_mini()
-            if force or self._status_at is None or now - self._status_at >= STATUS_INTERVAL:
+            if force or self._status_at is None or now - self._status_at >= self._status_every:
                 data.status = await self.api.get_status()
                 self._status_at = now
-            if force or self._energy_at is None or now - self._energy_at >= ENERGY_INTERVAL:
+            # with today / month kWh in /api/mini the big /api/energy is only needed for the totals
+            energy_every = self._energy_every * 5 if data.mini_has_energy else self._energy_every
+            if force or self._energy_at is None or now - self._energy_at >= energy_every:
                 try:
                     data.energy = await self.api.get_energy()
                     self._energy_at = now

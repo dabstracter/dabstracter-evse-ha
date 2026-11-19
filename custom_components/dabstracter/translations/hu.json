@@ -62,20 +62,36 @@
   },
   "selector": {
     "username": {
-      "options": { "user": "user", "admin": "admin" }
+      "options": {
+        "user": "user",
+        "admin": "admin"
+      }
     },
     "limit_type": {
-      "options": { "soc": "Akku %", "kwh": "kWh" }
+      "options": {
+        "soc": "Akku %",
+        "kwh": "kWh"
+      }
     },
     "plan_type": {
-      "options": { "kwh": "kWh", "km": "km", "soc": "Akku %" }
+      "options": {
+        "kwh": "kWh",
+        "km": "km",
+        "soc": "Akku %"
+      }
     }
   },
   "entity": {
     "sensor": {
-      "charging_power": { "name": "Töltési teljesítmény" },
-      "charging_current": { "name": "Töltőáram" },
-      "set_current": { "name": "Alkalmazott áram" },
+      "charging_power": {
+        "name": "Töltési teljesítmény"
+      },
+      "charging_current": {
+        "name": "Töltőáram"
+      },
+      "set_current": {
+        "name": "Alkalmazott áram"
+      },
       "ev_status": {
         "name": "EV állapot",
         "state": {
@@ -95,41 +111,118 @@
           "unknown": "Ismeretlen"
         }
       },
-      "mode_sensor": { "name": "Üzemmód" },
-      "session_energy": { "name": "Munkamenet energia" },
-      "total_energy": { "name": "Összes energia" },
-      "today_energy": { "name": "Mai energia" },
-      "month_energy": { "name": "Havi energia" },
-      "price": { "name": "Aktuális ár" },
-      "band_used": { "name": "Kedvezményes sáv felhasznált" },
-      "band_limit": { "name": "Kedvezményes sáv határa" },
-      "pv_power": { "name": "PV teljesítmény" },
-      "grid_power": { "name": "Hálózati teljesítmény" },
-      "house_power": { "name": "Ház fogyasztás" },
-      "battery_power": { "name": "Házi akku teljesítmény" },
-      "battery_soc": { "name": "Házi akku" },
-      "wifi_rssi": { "name": "Wi-Fi jelerősség" }
+      "mode_sensor": {
+        "name": "Üzemmód"
+      },
+      "session_energy": {
+        "name": "Munkamenet energia"
+      },
+      "total_energy": {
+        "name": "Összes energia"
+      },
+      "today_energy": {
+        "name": "Mai energia"
+      },
+      "month_energy": {
+        "name": "Havi energia"
+      },
+      "price": {
+        "name": "Aktuális ár"
+      },
+      "band_used": {
+        "name": "Kedvezményes sáv felhasznált"
+      },
+      "band_limit": {
+        "name": "Kedvezményes sáv határa"
+      },
+      "pv_power": {
+        "name": "PV teljesítmény"
+      },
+      "grid_power": {
+        "name": "Hálózati teljesítmény"
+      },
+      "house_power": {
+        "name": "Ház fogyasztás"
+      },
+      "battery_power": {
+        "name": "Házi akku teljesítmény"
+      },
+      "battery_soc": {
+        "name": "Házi akku"
+      },
+      "wifi_rssi": {
+        "name": "Wi-Fi jelerősség"
+      },
+      "session_duration": {
+        "name": "Munkamenet időtartam"
+      },
+      "session_cost": {
+        "name": "Munkamenet költség"
+      }
     },
     "binary_sensor": {
-      "charging": { "name": "Töltés" },
-      "car_connected": { "name": "Autó csatlakoztatva" },
-      "limit_active": { "name": "Töltési limit aktív" },
-      "plan_active": { "name": "Célidős töltés aktív" },
-      "fail_safe": { "name": "Fail-safe / biztonsági leállás" }
+      "charging": {
+        "name": "Töltés"
+      },
+      "car_connected": {
+        "name": "Autó csatlakoztatva"
+      },
+      "limit_active": {
+        "name": "Töltési limit aktív"
+      },
+      "plan_active": {
+        "name": "Célidős töltés aktív"
+      },
+      "fail_safe": {
+        "name": "Fail-safe / biztonsági leállás"
+      }
     },
     "select": {
       "mode": {
         "name": "Üzemmód",
-        "state": { "man": "MAN", "pv": "PV", "pv_eco": "PV ECO", "fast": "FAST" }
+        "state": {
+          "man": "MAN",
+          "pv": "PV",
+          "pv_eco": "PV ECO",
+          "fast": "FAST"
+        }
       }
     },
     "number": {
-      "max_current": { "name": "Max. áram" }
+      "max_current": {
+        "name": "Max. áram"
+      },
+      "limit_soc": {
+        "name": "Töltési limit (akku %)"
+      },
+      "limit_kwh": {
+        "name": "Töltési limit (kWh)"
+      },
+      "plan_energy": {
+        "name": "Célidős töltés energia"
+      }
     },
     "button": {
-      "start": { "name": "Start" },
-      "stop": { "name": "Stop" },
-      "cpwake": { "name": "Autó ébresztése (CP)" }
+      "start": {
+        "name": "Start"
+      },
+      "stop": {
+        "name": "Stop"
+      },
+      "cpwake": {
+        "name": "Autó ébresztése (CP)"
+      },
+      "plan_start": {
+        "name": "Célidős töltés indítása"
+      },
+      "plan_cancel": {
+        "name": "Célidős töltés megszakítása"
+      }
+    },
+    "time": {
+      "plan_time": {
+        "name": "Célidős töltés kész ekkorra"
+      }
     }
   },
   "services": {
@@ -137,36 +230,111 @@
       "name": "Töltési limit beállítása",
       "description": "Leállítja a töltést adott akku % vagy kWh után, bármely üzemmódban. Jelszó kell hozzá.",
       "fields": {
-        "device_id": { "name": "Töltő", "description": "Elhagyható, ha csak egy töltő van." },
-        "clear": { "name": "Törlés", "description": "A limit törlése." },
-        "type": { "name": "Típus", "description": "Akku % vagy kWh." },
-        "value": { "name": "Érték", "description": "Cél % vagy kWh." },
-        "start_soc": { "name": "Akku most", "description": "Az autó jelenlegi akku %-a (% limithez MQTT SOC nélkül)." }
+        "device_id": {
+          "name": "Töltő",
+          "description": "Elhagyható, ha csak egy töltő van."
+        },
+        "clear": {
+          "name": "Törlés",
+          "description": "A limit törlése."
+        },
+        "type": {
+          "name": "Típus",
+          "description": "Akku % vagy kWh."
+        },
+        "value": {
+          "name": "Érték",
+          "description": "Cél % vagy kWh."
+        },
+        "start_soc": {
+          "name": "Akku most",
+          "description": "Az autó jelenlegi akku %-a (% limithez MQTT SOC nélkül)."
+        }
       }
     },
     "set_plan": {
       "name": "Célidős töltés beállítása",
       "description": "Adott időpontra legyen kész kWh / km / akku %. Jelszó kell hozzá.",
       "fields": {
-        "device_id": { "name": "Töltő", "description": "Elhagyható, ha csak egy töltő van." },
-        "cancel": { "name": "Megszakítás", "description": "A célidős töltés megszakítása." },
-        "type": { "name": "Típus", "description": "kWh, km vagy akku %." },
-        "value": { "name": "Érték", "description": "A töltendő mennyiség." },
-        "time": { "name": "Kész ekkorra", "description": "ÓÓ:PP" },
-        "start_soc": { "name": "Akku most", "description": "Az autó jelenlegi akku %-a." }
+        "device_id": {
+          "name": "Töltő",
+          "description": "Elhagyható, ha csak egy töltő van."
+        },
+        "cancel": {
+          "name": "Megszakítás",
+          "description": "A célidős töltés megszakítása."
+        },
+        "type": {
+          "name": "Típus",
+          "description": "kWh, km vagy akku %."
+        },
+        "value": {
+          "name": "Érték",
+          "description": "A töltendő mennyiség."
+        },
+        "time": {
+          "name": "Kész ekkorra",
+          "description": "ÓÓ:PP"
+        },
+        "start_soc": {
+          "name": "Akku most",
+          "description": "Az autó jelenlegi akku %-a."
+        }
       }
     }
   },
   "exceptions": {
-    "password_required": { "message": "Ehhez user vagy admin jelszó kell az integráció beállításaiban (a kijelző-token nem elég)." },
-    "value_required": { "message": "Adj meg értéket, vagy kapcsold be a törlést." },
-    "value_time_required": { "message": "Adj meg értéket és időpontot, vagy kapcsold be a megszakítást." },
-    "bad_time": { "message": "Az időpont formátuma ÓÓ:PP." },
-    "unknown_device": { "message": "Ismeretlen DABSTRACTER eszköz." },
-    "device_required": { "message": "Több töltő van beállítva: válassz egyet." },
-    "forbidden": { "message": "A töltő elutasította: {msg}" },
-    "rejected": { "message": "A töltő nem fogadta el a kérést: {msg}" },
-    "comm_error": { "message": "Nem érem el a töltőt: {msg}" },
-    "command_failed": { "message": "A töltő nem tudta végrehajtani: {cmd}." }
+    "password_required": {
+      "message": "A töltő ehhez nem fogadja el a kijelző-tokent (2.8.110-nél régebbi firmware). Add meg a user vagy admin jelszót az integráció beállításaiban (Újrakonfigurálás)."
+    },
+    "value_required": {
+      "message": "Adj meg értéket, vagy kapcsold be a törlést."
+    },
+    "value_time_required": {
+      "message": "Adj meg értéket és időpontot, vagy kapcsold be a megszakítást."
+    },
+    "bad_time": {
+      "message": "Az időpont formátuma ÓÓ:PP."
+    },
+    "unknown_device": {
+      "message": "Ismeretlen DABSTRACTER eszköz."
+    },
+    "device_required": {
+      "message": "Több töltő van beállítva: válassz egyet."
+    },
+    "forbidden": {
+      "message": "A töltő elutasította: {msg}"
+    },
+    "rejected": {
+      "message": "A töltő nem fogadta el a kérést: {msg}"
+    },
+    "comm_error": {
+      "message": "Nem érem el a töltőt: {msg}"
+    },
+    "command_failed": {
+      "message": "A töltő nem tudta végrehajtani: {cmd}."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Lekérdezés",
+        "description": "Milyen gyakran kérdezze a Home Assistant a töltőt. A rövidebb frissebb, de jobban terheli a töltő Wi-Fi-jét.",
+        "data": {
+          "scan_interval": "Élő értékek (/api/mini)",
+          "status_interval": "Állapot, limit, célidő (/api/status)",
+          "energy_interval": "Energia-előzmények (/api/energy)"
+        },
+        "data_description": {
+          "energy_interval": "2.8.110-es vagy újabb firmware-rel a mai / havi kWh az élő értékekkel jön, ilyenkor ezt ötször ritkábban kéri."
+        }
+      }
+    }
+  },
+  "issues": {
+    "mqtt_duplicate": {
+      "title": "A DABSTRACTER EVSE MQTT-n keresztül is fel van véve",
+      "description": "A(z) {name} töltő MQTT discovery-vel is bekerült a Home Assistantba (eszköz: {mqtt_name}), ezért minden érték kétszer látszik.\n\nEgyet használj: vagy kapcsold ki a töltőn a **HA discovery**-t (Config → MQTT), és töröld az MQTT-s eszközt a Home Assistantban (Beállítások → Eszközök → {mqtt_name} → ⋮ → Törlés), vagy távolítsd el ezt az integrációt. A figyelmeztetés magától eltűnik, ha az MQTT-s eszköz megszűnt."
+    }
   }
 }

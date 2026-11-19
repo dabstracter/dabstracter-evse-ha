@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from homeassistant.helpers.device_registry import DeviceInfo
+from homeassistant.helpers.device_registry import CONNECTION_NETWORK_MAC, DeviceInfo, format_mac
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from .const import DOMAIN, MANUFACTURER, MODEL
@@ -30,3 +30,5 @@ class DabstracterEntity(CoordinatorEntity[DabstracterCoordinator]):
             hw_version=(data.status.get("health") or {}).get("board"),
             configuration_url=coordinator.api.base_url,
         )
+        if mac := data.mac:  # firmware 2.8.110+: lets HA link the device to its network entry
+            self._attr_device_info["connections"] = {(CONNECTION_NETWORK_MAC, format_mac(mac))}

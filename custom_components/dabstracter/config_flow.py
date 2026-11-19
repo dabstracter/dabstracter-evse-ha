@@ -8,10 +8,14 @@ from typing import Any
 
 import voluptuous as vol
 
-from homeassistant.config_entries import ConfigFlow, ConfigFlowResult
+from homeassistant.config_entries import ConfigEntry, ConfigFlow, ConfigFlowResult, OptionsFlow
+from homeassistant.core import callback
 from homeassistant.const import CONF_HOST
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.helpers.selector import (
+    NumberSelector,
+    NumberSelectorConfig,
+    NumberSelectorMode,
     SelectSelector,
     SelectSelectorConfig,
     SelectSelectorMode,
@@ -33,7 +37,20 @@ from .api import (
     normalize_host,
     probe,
 )
-from .const import CONF_PASSWORD, CONF_TOKEN, CONF_USERNAME, DEFAULT_USERNAME, DOMAIN, USERNAMES
+from .const import (
+    CONF_ENERGY_INTERVAL,
+    CONF_PASSWORD,
+    CONF_SCAN_INTERVAL,
+    CONF_STATUS_INTERVAL,
+    CONF_TOKEN,
+    CONF_USERNAME,
+    DEFAULT_USERNAME,
+    DOMAIN,
+    ENERGY_INTERVAL,
+    SCAN_INTERVAL,
+    STATUS_INTERVAL,
+    USERNAMES,
+)
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -65,6 +82,12 @@ class DabstracterConfigFlow(ConfigFlow, domain=DOMAIN):
     """Handle a config flow."""
 
     VERSION = 1
+
+    @staticmethod
+    @callback
+    def async_get_options_flow(config_entry: ConfigEntry) -> OptionsFlow:
+        """Poll intervals."""
+        return DabstracterOptionsFlow()
 
     def __init__(self) -> None:
         """Init."""
@@ -200,3 +223,27 @@ class DabstracterConfigFlow(ConfigFlow, domain=DOMAIN):
             }
         )
         return self.async_show_form(step_id="reconfigure", data_schema=schema, errors=errors)
+
+
+def _seconds(lo: int, hi: int, step: int) -> NumberSelector:
+    return NumberSelector(
+        NumberSelectorConfig(min=lo, max=hi, step=step, mode=NumberSelectorMode.BOX, unit_of_measurement="s")
+    )
+
+
+class DabstracterOptionsFlow(OptionsFlow):
+    """How often to ask the charger (the integration reloads after saving)."""
+
+    async def async_step_init(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
+        """Single form."""
+        if user_input is not None:
+            return self.async_create_entry(data={k: int(v) for k, v in user_input.items()})
+        opts = self.config_entry.options
+        schema = vol.Schema(
+            {
+                vol.Required(CONF_SCAN_INTERVAL, default=opts.get(CONF_SCAN_INTERVAL, SCAN_INTERVAL.seconds)): _seconds(2, 60, 1),
+                vol.Required(CONF_STATUS_INTERVAL, default=opts.get(CONF_STATUS_INTERVAL, STATUS_INTERVAL.seconds)): _seconds(10, 600, 5),
+                vol.Required(CONF_ENERGY_INTERVAL, default=opts.get(CONF_ENERGY_INTERVAL, ENERGY_INTERVAL.seconds)): _seconds(30, 3600, 30),
+            }
+        )
+        return self.async_show_form(step_id="init", data_schema=schema)
