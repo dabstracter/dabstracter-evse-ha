@@ -8,7 +8,7 @@ telefonra tervezett Lovelace kártya is (`dabstracter-charger-card`), amit az in
 
 | | |
 |---|---|
-| Verzió | 0.3.0 ([változásnapló](CHANGELOG.md)) |
+| Verzió | 0.3.1 ([változásnapló](CHANGELOG.md)) |
 | Home Assistant | 2025.1 vagy újabb (a logó megjelenítéséhez 2026.x) |
 | Töltő firmware | 2.8.76 vagy újabb (`/api/mini`) |
 | Kapcsolat | helyi HTTP, lekérdezéses (`local_polling`) |
@@ -207,6 +207,7 @@ magától megtalálja, és egyenként felülírhatók.
 type: custom:dabstracter-charger-card
 device_id: <a töltő eszköz-azonosítója>   # elhagyható, ha csak egy töltő van
 title: Garázs                              # opcionális
+view: compact                              # compact (alapértelmezett) | full
 show_limits: true                          # töltési limit és célidős töltés gyorsgombokkal
 show_band: true                            # havi kedvezményes sáv
 show_stats: true                           # mai / havi / összes kWh
@@ -219,6 +220,25 @@ entities:                                  # opcionális felülírás szerepenk�
 Felülírható szerepek: `status`, `power`, `current`, `session`, `mode`, `amps`, `start`, `stop`, `cpwake`,
 `band`, `band_limit`, `price`, `pv`, `grid`, `house`, `battery`, `soc`, `charging`, `limit`, `plan`,
 `today`, `month`, `total`.
+
+### Kompakt nézet (alapértelmezett)
+
+Egy képernyő a mindennapi használatra, a teljes kártya magasságának kb. negyede:
+
+- balra az állapot és az üzemmód, jobbra nagyban a teljesítmény; alattuk áram, munkamenet kWh, idő és költség;
+  „Csatlakoztasd az autót”, ha a töltő kész, de nincs autó;
+- vékony **energiasín**: honnan jön az áram (napelem / hálózat / akku színei), az értékekkel és kis jelzésekkel:
+  kedvezményes sáv %, aktív limit, célidő. Töltés közben finoman áramlik;
+- **egy gomb**: töltés közben STOP, egyébként START; mellette az áram −/+ gombokkal („kézi” MAN-ban, „max” a
+  többi módban);
+- üzemmód-szegmensek;
+- **Részletek**: csúszka, limit és célidő gyorsgombok, sáv-mérő, mai / havi / összes, energiafolyam (sáv vagy
+  diagram), CP-ébresztés és a „Frissítve x mp-e” lábléc. A böngésző megjegyzi, nyitva hagytad-e. Kapcsolatvesztést
+  csukott állapotban is jelez.
+
+`view: full` mindent egyszerre mutat, mint eddig (most szorosabb térközökkel).
+
+### Teljes nézet
 
 Tartalom, felülről lefelé:
 - állapot (színes pont, töltésnél pulzál) + üzemmód + teljesítmény; alatta áram, munkamenet kWh, a töltés

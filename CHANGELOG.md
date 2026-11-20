@@ -1,5 +1,13 @@
 # Változásnapló
 
+## 0.3.1 – Kompakt kártya (2026-11-20)
+
+- A kártya alapból **kompakt nézetben** jelenik meg, a teljes nézet kb. negyedén: állapot és teljesítmény egy
+  sorban, élő energiasín (honnan jön az áram, sáv %, limit, célidő), egyetlen START / STOP gomb az áram mellett,
+  üzemmód. Minden más a „Részletek” alatt nyílik, a böngésző megjegyzi.
+- A teljes nézet `view: full` beállítással érhető el (vizuális szerkesztő: Elrendezés), szorosabb térközökkel.
+- Billentyűzetes fókusz minden gombon látható; a mozgás kikapcsol, ha a rendszer csökkentett mozgást kér.
+
 ## 0.3.0 – Limit és célidő entitásként, MQTT-figyelmeztetés, beállítható lekérdezés (2026-11-19)
 
 - **Töltési limit entitásként:** „Töltési limit (akku %)” és „Töltési limit (kWh)” szám; 0 = nincs limit.

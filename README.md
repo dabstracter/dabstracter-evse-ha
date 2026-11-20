@@ -8,7 +8,7 @@ card (`dabstracter-charger-card`) that the integration loads automatically.
 
 | | |
 |---|---|
-| Version | 0.3.0 ([changelog](CHANGELOG.md)) |
+| Version | 0.3.1 ([changelog](CHANGELOG.md)) |
 | Home Assistant | 2025.1 or newer (logo display needs 2026.x) |
 | Charger firmware | 2.8.76 or newer (`/api/mini`) |
 | Connection | local HTTP polling (`local_polling`) |
@@ -203,6 +203,7 @@ In the visual editor, pick the charger device; entities are discovered automatic
 type: custom:dabstracter-charger-card
 device_id: <charger device id>   # optional if you have only one charger
 title: Garage                    # optional
+view: compact                    # compact (default) | full
 show_limits: true                # charge limit + deadline plan quick actions
 show_band: true                  # monthly discounted band
 show_stats: true                 # today / month / total kWh
@@ -215,6 +216,25 @@ entities:                        # optional per-role overrides
 Overridable roles: `status`, `power`, `current`, `session`, `mode`, `amps`, `start`, `stop`, `cpwake`,
 `band`, `band_limit`, `price`, `pv`, `grid`, `house`, `battery`, `soc`, `charging`, `limit`, `plan`,
 `today`, `month`, `total`.
+
+### Compact view (default)
+
+One screen for daily use, about a quarter of the height of the full card:
+
+- status and mode on the left, power large on the right; under them current, session kWh, duration and cost;
+  “Plug in the car” when ready and nothing is plugged in;
+- a thin **energy rail** showing where the power comes from (solar / grid / battery colours), with the values
+  and small badges: discount band %, active limit, target time. It shimmers while the car is charging;
+- **one action button**: STOP while charging, START otherwise; the current with −/+ next to it
+  (“manual” in MAN, “max” in the other modes);
+- mode segments;
+- **Details**: the slider, limit and target-time quick actions, band meter, today / month / total, energy flow
+  (bar or diagram), CP wake, and the “Updated x s ago” footer. The browser remembers whether it was open.
+  A lost connection is shown even when Details is closed.
+
+`view: full` shows everything at once, as before (now with tighter spacing).
+
+### Full view
 
 Top to bottom:
 - status (coloured dot, pulses while charging) + mode + power; then current, session kWh, session
